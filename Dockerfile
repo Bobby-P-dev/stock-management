@@ -56,10 +56,14 @@ RUN apk add --no-cache \
     icu-dev \
     oniguruma \
     oniguruma-dev \
+    libpq \
+    postgresql-dev \
     tzdata \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
+        pdo_pgsql \
+        pgsql \
         mbstring \
         exif \
         pcntl \
@@ -74,7 +78,8 @@ RUN apk add --no-cache \
         freetype-dev \
         libzip-dev \
         icu-dev \
-        oniguruma-dev
+        oniguruma-dev \
+        postgresql-dev
 
 # Copy configuration files
 COPY docker/nginx.conf /etc/nginx/nginx.conf
