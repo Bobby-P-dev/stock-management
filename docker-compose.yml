@@ -17,13 +17,13 @@ services:
     volumes:
       - app_storage:/var/www/html/storage/app
     networks:
-      - ai_network
+      - ai-network
 
 volumes:
   app_storage:
     driver: local
 
 networks:
-  ai_network:
+  ai-network:
     external: true
-    name: ${DOCKER_NETWORK:-ai_network}
+    name: ${DOCKER_NETWORK:-ai-network}
