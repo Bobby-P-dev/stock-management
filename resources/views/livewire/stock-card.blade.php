@@ -1,5 +1,4 @@
 <div class="space-y-6 max-w-6xl mx-auto">
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <div class="flex items-center gap-2">
@@ -33,7 +32,6 @@
         </div>
     </div>
 
-    <!-- Product Selector & Date Filters -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm print:hidden">
         <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Pilih Produk Barang *</label>
@@ -71,7 +69,6 @@
         $product = $stockCardData['product'];
     @endphp
 
-    <!-- Product Info Header Card -->
     <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm print:bg-white print:text-black print:border-gray-200 print:shadow-none">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100 print:border-gray-200">
             <div>
@@ -88,7 +85,6 @@
                 </div>
             </div>
 
-            <!-- Running Balance KPI Box -->
             <div class="flex items-center gap-3">
                 <div class="px-4 py-3 rounded-xl bg-emerald-50/70 border border-emerald-100 text-center">
                     <span class="text-[10px] text-emerald-700 uppercase tracking-wider font-semibold block">Total Masuk</span>
@@ -108,7 +104,6 @@
             </div>
         </div>
 
-        <!-- Ledger Table -->
         <div class="mt-6 overflow-x-auto">
             <table class="w-full text-left text-xs">
                 <thead>

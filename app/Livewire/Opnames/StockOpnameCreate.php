@@ -105,7 +105,6 @@ class StockOpnameCreate extends Component
             'items.*.physical_stock.min' => 'Kuantitas fisik tidak boleh kurang dari 0.',
         ]);
 
-        // Cek duplikasi produk dalam 1 dokumen opname
         $productIds = array_column($this->items, 'product_id');
         if (count($productIds) !== count(array_unique($productIds))) {
             throw ValidationException::withMessages([

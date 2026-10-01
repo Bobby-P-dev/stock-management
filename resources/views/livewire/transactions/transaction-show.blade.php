@@ -1,5 +1,4 @@
 <div class="max-w-4xl mx-auto space-y-6">
-    <!-- Action Bar (hidden when printing) -->
     <div class="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
         <a
             href="{{ route('transactions.index') }}"
@@ -21,9 +20,7 @@
         </div>
     </div>
 
-    <!-- Printable Invoice Card -->
     <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm text-slate-900 print:bg-white print:text-black print:border-none print:shadow-none print:p-0">
-        <!-- Invoice Header -->
         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-slate-100 print:border-gray-200">
             <div>
                 <div class="flex items-center gap-2.5">
@@ -54,7 +51,6 @@
             </div>
         </div>
 
-        <!-- Meta Info (Supplier / Recipient & Creator) -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 py-6 border-b border-slate-100 print:border-gray-200 text-xs">
             <div>
                 @if($transaction->type === 'IN')
@@ -90,7 +86,6 @@
             </div>
         </div>
 
-        <!-- Items Table -->
         <div class="py-6 overflow-x-auto">
             <table class="w-full text-left text-xs">
                 <thead>
@@ -143,7 +138,6 @@
             </table>
         </div>
 
-        <!-- Signatures (academic defense ready) -->
         <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs text-slate-500 print:text-black">
             <div>
                 <p>Petugas Penanggung Jawab,</p>

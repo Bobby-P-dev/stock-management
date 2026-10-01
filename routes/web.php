@@ -21,7 +21,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-// Rute Autentikasi Tamu
 Route::get('/login', Login::class)->name('login');
 
 Route::post('/logout', function (Request $request) {
@@ -32,33 +31,28 @@ Route::post('/logout', function (Request $request) {
     return redirect()->route('login');
 })->name('logout')->middleware('auth');
 
-// Rute Terproteksi (Wajib Login)
 Route::middleware('auth')->group(function () {
     Route::get('/', fn () => redirect()->route('dashboard'));
     Route::get('/dashboard', Dashboard::class)->name('dashboard');
 
-    // Master Barang & Transaksi (Akses Admin & Petugas)
     Route::get('/products', ProductIndex::class)->name('products.index');
     Route::get('/transactions', TransactionIndex::class)->name('transactions.index');
     Route::get('/transactions/in', StockInCreate::class)->name('transactions.in');
     Route::get('/transactions/out', StockOutCreate::class)->name('transactions.out');
     Route::get('/transactions/{transaction}', TransactionShow::class)->name('transactions.show');
 
-    // Audit Fisik (Stock Opname), Kartu Stok & Laporan
     Route::get('/stock-card/{productId?}', StockCard::class)->name('stock-card');
     Route::get('/opnames', StockOpnameIndex::class)->name('opnames.index');
     Route::get('/opnames/create', StockOpnameCreate::class)->name('opnames.create');
     Route::get('/opnames/{opname}', StockOpnameShow::class)->name('opnames.show');
     Route::get('/reports', ReportIndex::class)->name('reports.index');
 
-    // Export Data Laporan & Dokumen ke Excel (.csv)
     Route::get('/export/stock', [ExportController::class, 'exportStock'])->name('export.stock');
     Route::get('/export/stock-in', [ExportController::class, 'exportStockIn'])->name('export.stock-in');
     Route::get('/export/stock-out', [ExportController::class, 'exportStockOut'])->name('export.stock-out');
     Route::get('/export/stock-card/{productId}', [ExportController::class, 'exportStockCard'])->name('export.stock-card');
     Route::get('/export/opname/{opnameId}', [ExportController::class, 'exportOpname'])->name('export.opname');
 
-    // Master Data Khusus Administrator
     Route::middleware('admin')->group(function () {
         Route::get('/categories', CategoryIndex::class)->name('categories.index');
         Route::get('/units', UnitIndex::class)->name('units.index');

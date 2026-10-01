@@ -23,7 +23,6 @@ class StockCard extends Component
         if ($productId) {
             $this->productId = $productId;
         } else {
-            // Default ke produk pertama yang memiliki transaksi jika ada
             $firstProduct = Product::active()->first();
             $this->productId = $firstProduct?->id;
         }

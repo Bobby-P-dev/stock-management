@@ -60,7 +60,6 @@ class ReportRankingTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Produk 1: Sangat Sering Mutasi (Fast Moving)
         $this->productFast = Product::create([
             'sku' => 'PRD-FAST-01',
             'name' => 'Barang Paling Laku',
@@ -71,7 +70,6 @@ class ReportRankingTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Produk 2: Mutasi Sedang (Medium Moving)
         $this->productMedium = Product::create([
             'sku' => 'PRD-MED-02',
             'name' => 'Barang Sedang',
@@ -82,7 +80,6 @@ class ReportRankingTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Produk 3: Mutasi Rendah (Slow Moving)
         $this->productSlow = Product::create([
             'sku' => 'PRD-SLOW-03',
             'name' => 'Barang Lambat',
@@ -93,7 +90,6 @@ class ReportRankingTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Produk 4: Tidak Pernah Mutasi (Non-Moving)
         $this->productNonMoving = Product::create([
             'sku' => 'PRD-DEAD-04',
             'name' => 'Barang Mengendap',
@@ -104,7 +100,6 @@ class ReportRankingTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Catat mutasi masuk
         $this->stockService->recordStockIn(
             [
                 'transaction_date' => now()->toDateString(),
@@ -119,7 +114,6 @@ class ReportRankingTest extends TestCase
             $this->admin->id
         );
 
-        // Catat mutasi keluar (penjualan / pemakaian)
         $this->stockService->recordStockOut(
             [
                 'transaction_date' => now()->toDateString(),
@@ -141,19 +135,16 @@ class ReportRankingTest extends TestCase
 
         $products = $result['products'];
 
-        // Produk Fast harus di peringkat #1 (Total In 100 + Out 80 = 180)
         $this->assertEquals($this->productFast->id, $products->first()->id);
         $this->assertEquals(1, $products->first()->rank);
         $this->assertEquals(180, $products->first()->total_movement);
         $this->assertEquals('FAST_MOVING', $products->first()->velocity_status);
 
-        // Produk Non-Moving harus berstatus NON_MOVING
         $nonMoving = $products->firstWhere('id', $this->productNonMoving->id);
         $this->assertNotNull($nonMoving);
         $this->assertEquals(0, $nonMoving->total_movement);
         $this->assertEquals('NON_MOVING', $nonMoving->velocity_status);
 
-        // Verifikasi ringkasan KPI
         $this->assertEquals(4, $result['summary']['total_products']);
         $this->assertEquals(1, $result['summary']['fast_moving']);
         $this->assertEquals(1, $result['summary']['non_moving']);

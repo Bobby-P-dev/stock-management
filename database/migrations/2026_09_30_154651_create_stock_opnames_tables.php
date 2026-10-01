@@ -27,7 +27,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained('products')->cascadeOnUpdate()->restrictOnDelete();
             $table->integer('system_stock');
             $table->integer('physical_stock');
-            $table->integer('difference'); // physical_stock - system_stock
+            $table->integer('difference');
             $table->string('reason', 50)->nullable();
             $table->string('item_notes', 255)->nullable();
             $table->timestamps();

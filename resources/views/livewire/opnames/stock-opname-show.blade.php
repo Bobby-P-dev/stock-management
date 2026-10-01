@@ -1,5 +1,4 @@
 <div class="max-w-5xl mx-auto space-y-6">
-    <!-- Action Bar (hidden when printing) -->
     <div class="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
         <a
             href="{{ route('opnames.index') }}"
@@ -29,9 +28,7 @@
         </div>
     </div>
 
-    <!-- Printable Official Document Card -->
     <div class="bg-white border border-slate-200/80 rounded-3xl p-8 shadow-sm text-slate-900 print:bg-white print:text-black print:border-none print:shadow-none print:p-0">
-        <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b border-slate-100 print:border-gray-200">
             <div>
                 <div class="flex items-center gap-2.5">
@@ -60,7 +57,6 @@
             </div>
         </div>
 
-        <!-- Meta Info -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 py-5 border-b border-slate-100 print:border-gray-200 text-xs">
             <div>
                 <span class="text-slate-400 print:text-gray-500 uppercase tracking-wider font-semibold text-[10px] block mb-1">
@@ -81,7 +77,6 @@
             </div>
         </div>
 
-        <!-- Summary KPI Cards -->
         @php
             $totalCount = $opname->items->count();
             $matchedCount = $opname->items->where('difference', 0)->count();
@@ -110,7 +105,6 @@
             </div>
         </div>
 
-        <!-- Items Table -->
         <div class="py-6 overflow-x-auto">
             <table class="w-full text-left text-xs">
                 <thead>
@@ -174,7 +168,6 @@
             </table>
         </div>
 
-        <!-- Official Signatures -->
         <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs text-slate-500 print:text-black">
             <div>
                 <p>Petugas Pelaksana Pemeriksa Fisik,</p>

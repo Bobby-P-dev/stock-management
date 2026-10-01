@@ -48,7 +48,6 @@
         </tr>
         <tr><td colspan="9" style="border: none;"></td></tr>
 
-        <!-- Ringkasan Info Barang -->
         <tr>
             <td class="info-label" colspan="2">Kode SKU:</td>
             <td class="info-value text-sku" colspan="2">{{ $product->sku }}</td>
@@ -80,7 +79,6 @@
 
         <tr><td colspan="9" style="border: none;"></td></tr>
 
-        <!-- Header Tabel Ledger -->
         <thead>
             <tr>
                 <th style="width: 40px;">No</th>

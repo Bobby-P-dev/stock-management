@@ -1,5 +1,4 @@
 <div class="space-y-6 max-w-7xl mx-auto">
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <div class="flex items-center gap-2">
@@ -30,7 +29,6 @@
     @endif
 
     <form wire:submit="save" class="space-y-6">
-        <!-- Header Info Card -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-4">
             <h2 class="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3">Informasi Pelaksanaan Opname</h2>
 
@@ -63,7 +61,6 @@
             </div>
         </div>
 
-        <!-- Items Table Card -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm space-y-4">
             <div class="flex items-center justify-between border-b border-slate-100 pb-3">
                 <div>
@@ -102,7 +99,6 @@
                                 {{ $index + 1 }}
                             </td>
 
-                            <!-- Product Select -->
                             <td class="py-3 px-3">
                                 <select
                                     wire:model.live="items.{{ $index }}.product_id"
@@ -119,12 +115,10 @@
                                 @enderror
                             </td>
 
-                            <!-- System Stock (Snapshot) -->
                             <td class="py-3 px-3 text-center font-bold text-slate-700 bg-slate-50/50">
                                 {{ $item['system_stock'] }}
                             </td>
 
-                            <!-- Physical Stock (Input) -->
                             <td class="py-3 px-3 text-center">
                                 <input
                                     wire:model.live.debounce.300ms="items.{{ $index }}.physical_stock"
@@ -138,7 +132,6 @@
                                 @enderror
                             </td>
 
-                            <!-- Difference Result -->
                             <td class="py-3 px-3 text-center">
                                 @php $diff = $item['difference'] ?? 0; @endphp
                                 @if($diff === 0)
@@ -156,7 +149,6 @@
                                 @endif
                             </td>
 
-                            <!-- Reason Select -->
                             <td class="py-3 px-3">
                                 <select
                                     wire:model="items.{{ $index }}.reason"
@@ -171,7 +163,6 @@
                                 </select>
                             </td>
 
-                            <!-- Item Notes -->
                             <td class="py-3 px-3">
                                 <input
                                     wire:model="items.{{ $index }}.item_notes"
@@ -181,7 +172,6 @@
                                 >
                             </td>
 
-                            <!-- Remove Action -->
                             <td class="py-3 px-3 text-center">
                                 @if(count($items) > 1)
                                 <button
@@ -214,7 +204,6 @@
             </div>
         </div>
 
-        <!-- Submit Button Footer -->
         <div class="flex items-center justify-end gap-3 pt-2">
             <a
                 href="{{ route('opnames.index') }}"

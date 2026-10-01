@@ -94,7 +94,7 @@ class ProductIndex extends Component
             $product->update($validated);
             session()->flash('success', "Barang '{$product->name}' berhasil diperbarui.");
         } else {
-            $validated['current_stock'] = 0; // Stok awal selalu 0, diisi melalui mutasi Stock In
+            $validated['current_stock'] = 0;
             $product = Product::create($validated);
             session()->flash('success', "Barang baru '{$product->name}' berhasil ditambahkan.");
         }

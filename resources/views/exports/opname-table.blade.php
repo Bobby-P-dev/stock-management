@@ -48,7 +48,6 @@
         </tr>
         <tr><td colspan="10" style="border: none;"></td></tr>
 
-        <!-- Ringkasan Header Dokumen -->
         <tr>
             <td class="info-label" colspan="2">Nomor Berita Acara:</td>
             <td class="info-value text-doc" colspan="3">{{ $opname->opname_no }}</td>
@@ -64,7 +63,6 @@
 
         <tr><td colspan="10" style="border: none;"></td></tr>
 
-        <!-- Tabel Detail Barang -->
         <thead>
             <tr>
                 <th style="width: 40px;">No</th>

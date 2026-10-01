@@ -1,5 +1,4 @@
 <div class="space-y-6 max-w-7xl mx-auto">
-    <!-- Welcome banner -->
     <div class="rounded-2xl bg-white border border-slate-200/80 p-6 md:p-8 shadow-sm">
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -15,7 +14,6 @@
                 </p>
             </div>
 
-            <!-- Quick Action Buttons -->
             <div class="flex flex-wrap items-center gap-2.5">
                 <a
                     href="{{ route('transactions.in') }}"
@@ -36,9 +34,7 @@
         </div>
     </div>
 
-    <!-- KPI Metric Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <!-- Total Barang -->
         <div class="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500">Total Jenis Barang</span>
@@ -52,7 +48,6 @@
             </div>
         </div>
 
-        <!-- Stok Menipis / Kritis -->
         <div class="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-amber-700">Peringatan Menipis</span>
@@ -66,7 +61,6 @@
             </div>
         </div>
 
-        <!-- Masuk Hari Ini -->
         <div class="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-emerald-700">Barang Masuk Hari Ini</span>
@@ -80,7 +74,6 @@
             </div>
         </div>
 
-        <!-- Keluar Hari Ini -->
         <div class="p-5 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-rose-700">Barang Keluar Hari Ini</span>
@@ -95,9 +88,7 @@
         </div>
     </div>
 
-    <!-- Main Grid: Low stock alerts & Recent transactions -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- Low Stock Items Table -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
                 <div>
@@ -153,7 +144,6 @@
             </div>
         </div>
 
-        <!-- Recent Transactions -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
             <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
                 <div>
@@ -197,7 +187,6 @@
         </div>
     </div>
 
-    <!-- Audit & Reconciliation Feature -->
     <div class="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>

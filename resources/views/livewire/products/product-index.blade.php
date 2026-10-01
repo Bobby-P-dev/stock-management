@@ -1,5 +1,4 @@
 <div class="space-y-6 max-w-7xl mx-auto">
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h1 class="text-xl font-bold text-slate-900 tracking-tight">Katalog Master Barang</h1>
@@ -18,7 +17,6 @@
         @endif
     </div>
 
-    <!-- Flash message -->
     @if(session('success'))
     <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 shadow-sm">
         <x-heroicon-s-check-circle class="w-4 h-4 text-emerald-600 shrink-0" />
@@ -26,7 +24,6 @@
     </div>
     @endif
 
-    <!-- Search & Filters -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm">
         <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Pencarian Barang</label>
@@ -70,7 +67,6 @@
         </div>
     </div>
 
-    <!-- Products Table -->
     <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
@@ -165,7 +161,6 @@
         </div>
     </div>
 
-    <!-- Modal Form Tambah / Edit Produk -->
     @if($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
         <div class="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">

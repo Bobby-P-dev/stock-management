@@ -59,7 +59,6 @@ class StockOutCreate extends Component
             'items.*.quantity.min' => 'Kuantitas minimal 1 unit.',
         ]);
 
-        // Cek duplikasi produk di form
         $productIds = array_column($this->items, 'product_id');
         if (count($productIds) !== count(array_unique($productIds))) {
             $this->addError('items', 'Terdapat barang duplikat di formulir. Harap gabungkan kuantitas untuk barang yang sama.');
@@ -67,7 +66,6 @@ class StockOutCreate extends Component
             return null;
         }
 
-        // Verifikasi ketersediaan stok di sisi client/Livewire sebelum dieksekusi oleh service
         foreach ($this->items as $idx => $item) {
             $product = Product::find($item['product_id']);
             if ($product && $product->current_stock < (int) $item['quantity']) {

@@ -1,5 +1,4 @@
 <div class="space-y-6 max-w-7xl mx-auto">
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 print:hidden">
         <div>
             <h1 class="text-xl font-bold text-slate-900 tracking-tight">Pusat Laporan Inventaris & Mutasi</h1>
@@ -44,7 +43,6 @@
         </div>
     </div>
 
-    <!-- Navigation Tabs -->
     <div class="flex items-center gap-2 border-b border-slate-200 print:hidden">
         <button
             wire:click="setTab('stock')"
@@ -74,10 +72,8 @@
         </button>
     </div>
 
-    <!-- TAB 1: POSISI STOK & RANKING PERPUTARAN -->
     @if($activeTab === 'stock')
     <div class="space-y-4">
-        <!-- KPI Bar Status Perputaran Barang (Velocity Metrics) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 print:hidden">
             <div class="p-4 rounded-2xl bg-white border border-slate-200/80 shadow-xs flex items-center justify-between">
                 <div>
@@ -124,7 +120,6 @@
             </div>
         </div>
 
-        <!-- Filter bar -->
         <div class="bg-white border border-slate-200/80 p-4 rounded-2xl shadow-xs print:hidden space-y-3">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
@@ -171,7 +166,6 @@
                 </div>
             </div>
 
-            <!-- Periode Analisis Mutasi -->
             <div class="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
                 <div class="flex items-center gap-2">
                     <span class="font-medium text-slate-700">Periode Analisis Mutasi:</span>
@@ -202,7 +196,6 @@
             </div>
         </div>
 
-        <!-- Report Table -->
         <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm print:border-gray-200 print:bg-white print:text-black print:shadow-none">
             <div class="p-4 border-b border-slate-100 hidden print:block">
                 <h2 class="text-base font-bold text-black">LAPORAN REKAPITULASI POSISI STOK & RANKING PERPUTARAN BARANG</h2>
@@ -297,10 +290,8 @@
     </div>
     @endif
 
-    <!-- TAB 2: BARANG MASUK -->
     @if($activeTab === 'in')
     <div class="space-y-4">
-        <!-- Filter bar -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm print:hidden">
             <div>
                 <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dari Tanggal</label>
@@ -323,7 +314,6 @@
             </div>
         </div>
 
-        <!-- Report Table -->
         <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm print:border-gray-200 print:bg-white print:text-black print:shadow-none">
             <div class="p-4 border-b border-slate-100 hidden print:block">
                 <h2 class="text-base font-bold text-black">LAPORAN REKAPITULASI BARANG MASUK (STOCK IN)</h2>
@@ -388,10 +378,8 @@
     </div>
     @endif
 
-    <!-- TAB 3: BARANG KELUAR -->
     @if($activeTab === 'out')
     <div class="space-y-4">
-        <!-- Filter bar -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm print:hidden">
             <div>
                 <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dari Tanggal</label>
@@ -409,7 +397,6 @@
             </div>
         </div>
 
-        <!-- Report Table -->
         <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm print:border-gray-200 print:bg-white print:text-black print:shadow-none">
             <div class="p-4 border-b border-slate-100 hidden print:block">
                 <h2 class="text-base font-bold text-black">LAPORAN REKAPITULASI BARANG KELUAR (STOCK OUT)</h2>

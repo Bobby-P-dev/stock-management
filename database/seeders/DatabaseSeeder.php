@@ -19,14 +19,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Proteksi: jangan jalankan ulang jika user admin sudah terdaftar
         if (User::where('email', 'admin@stock.com')->exists()) {
             $this->command?->info('Data awal sudah ada di database. Melewati proses seeding.');
 
             return;
         }
 
-        // 1. Akun Pengguna
         $admin = User::create([
             'name' => 'Administrator',
             'email' => 'admin@stock.com',
@@ -43,7 +41,6 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 2. Kategori Barang
         $catJaringan = Category::create([
             'name' => 'Jaringan & Server',
             'description' => 'Perangkat dan media transmisi jaringan komputer',
@@ -62,13 +59,11 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 3. Satuan Barang
         $unitPcs = Unit::create(['name' => 'Pieces', 'symbol' => 'PCS', 'is_active' => true]);
         $unitBox = Unit::create(['name' => 'Box', 'symbol' => 'BOX', 'is_active' => true]);
         $unitUnit = Unit::create(['name' => 'Unit', 'symbol' => 'UNIT', 'is_active' => true]);
         $unitRoll = Unit::create(['name' => 'Roll', 'symbol' => 'ROLL', 'is_active' => true]);
 
-        // 4. Supplier
         $sup1 = Supplier::create([
             'code' => 'SUP-001',
             'name' => 'PT Sinar Abadi Perkasa',
@@ -96,7 +91,6 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 5. Master Barang (current_stock awal di-set 0, kemudian diisi lewat mutasi agar tercatat di kartu stok)
         $prodKabel = Product::create([
             'sku' => 'PRD-LAN-CAT6',
             'name' => 'Kabel UTP Cat6 305M Belden Original',
@@ -157,10 +151,8 @@ class DatabaseSeeder extends Seeder
             'is_active' => true,
         ]);
 
-        // 6. Jalankan Transaksi Awal lewat StockService agar Kartu Stok Terisi Sempurna
         $stockService = app(StockService::class);
 
-        // Transaksi Masuk #1 (10 hari lalu)
         $stockService->recordStockIn(
             [
                 'transaction_date' => Carbon::today()->subDays(10)->toDateString(),
@@ -174,7 +166,6 @@ class DatabaseSeeder extends Seeder
             $admin->id
         );
 
-        // Transaksi Masuk #2 (7 hari lalu)
         $stockService->recordStockIn(
             [
                 'transaction_date' => Carbon::today()->subDays(7)->toDateString(),
@@ -188,7 +179,6 @@ class DatabaseSeeder extends Seeder
             $petugas->id
         );
 
-        // Transaksi Masuk #3 (5 hari lalu)
         $stockService->recordStockIn(
             [
                 'transaction_date' => Carbon::today()->subDays(5)->toDateString(),
@@ -201,7 +191,6 @@ class DatabaseSeeder extends Seeder
             $petugas->id
         );
 
-        // Transaksi Keluar #1 (3 hari lalu)
         $stockService->recordStockOut(
             [
                 'transaction_date' => Carbon::today()->subDays(3)->toDateString(),
@@ -215,7 +204,6 @@ class DatabaseSeeder extends Seeder
             $petugas->id
         );
 
-        // Transaksi Keluar #2 (kemarin)
         $stockService->recordStockOut(
             [
                 'transaction_date' => Carbon::yesterday()->toDateString(),
@@ -224,7 +212,7 @@ class DatabaseSeeder extends Seeder
             ],
             [
                 ['product_id' => $prodMouse->id, 'quantity' => 5],
-                ['product_id' => $prodHvs->id, 'quantity' => 8], // Menyisakan 2 box (di bawah minimum 8 -> Status Menipis!)
+                ['product_id' => $prodHvs->id, 'quantity' => 8],
             ],
             $petugas->id
         );

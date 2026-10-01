@@ -62,7 +62,6 @@ class StockInCreate extends Component
             'items.*.quantity.min' => 'Kuantitas minimal 1 unit.',
         ]);
 
-        // Cek duplikasi produk di form
         $productIds = array_column($this->items, 'product_id');
         if (count($productIds) !== count(array_unique($productIds))) {
             $this->addError('items', 'Terdapat barang duplikat di formulir. Harap gabungkan kuantitas untuk barang yang sama.');

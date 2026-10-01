@@ -49,7 +49,6 @@ class SupplierIndex extends Component
         $this->reset(['editingSupplierId', 'code', 'name', 'phone', 'email', 'address']);
         $this->is_active = true;
 
-        // Auto-generate code SUP-XXX
         $count = Supplier::count() + 1;
         $this->code = 'SUP-'.str_pad((string) $count, 3, '0', STR_PAD_LEFT);
 

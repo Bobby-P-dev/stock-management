@@ -1,5 +1,4 @@
 <div class="space-y-6 max-w-7xl mx-auto">
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h1 class="text-xl font-bold text-slate-900 tracking-tight">Riwayat Mutasi Stok</h1>
@@ -32,7 +31,6 @@
     </div>
     @endif
 
-    <!-- Filters Section -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm">
         <div class="lg:col-span-2">
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Cari No Transaksi / Pihak</label>
@@ -80,7 +78,6 @@
         </div>
     </div>
 
-    <!-- Transactions Table -->
     <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">

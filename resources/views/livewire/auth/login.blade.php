@@ -1,5 +1,4 @@
 <div class="w-full max-w-md">
-    <!-- Header Logo & Title -->
     <div class="text-center mb-8">
         <div class="flex justify-center mb-3">
             <img src="{{ asset('images/logo.png') }}" alt="Logo Berkahventory" class="w-28 h-28 object-contain">
@@ -8,7 +7,6 @@
         <p class="text-xs text-slate-500 mt-1">Sistem Informasi Manajemen Barang Masuk & Barang Keluar</p>
     </div>
 
-    <!-- Login Card -->
     <div class="bg-white border border-slate-200/80 rounded-2xl p-8 shadow-xl shadow-slate-200/50">
         <h2 class="text-lg font-bold text-slate-900 mb-1">Masuk ke Akun</h2>
         <p class="text-xs text-slate-500 mb-6">Silakan masukkan kredensial untuk mengakses sistem.</p>

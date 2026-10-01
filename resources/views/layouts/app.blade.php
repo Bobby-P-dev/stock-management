@@ -18,7 +18,6 @@
     </head>
     <body class="h-full bg-slate-50 text-slate-800 font-sans antialiased selection:bg-indigo-600 selection:text-white" x-data="{ sidebarOpen: false }">
         <div class="min-h-full flex">
-            <!-- Mobile Sidebar Backdrop -->
             <div
                 x-show="sidebarOpen"
                 x-transition:enter="transition-opacity ease-linear duration-300"
@@ -32,12 +31,10 @@
                 style="display: none;"
             ></div>
 
-            <!-- Sidebar Navigation -->
             <aside
                 :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
                 class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col transition-transform duration-300 ease-in-out lg:static lg:flex"
             >
-                <!-- Brand / Logo -->
                 <div class="h-16 px-5 flex items-center gap-3 border-b border-slate-100">
                     <img src="{{ asset('images/logo.png') }}" alt="Logo Berkahventory" class="w-10 h-10 object-contain">
                     <div>
@@ -46,9 +43,7 @@
                     </div>
                 </div>
 
-                <!-- Navigation Links -->
                 <nav class="flex-1 px-4 py-4 space-y-6 overflow-y-auto">
-                    <!-- Menu Utama -->
                     <div>
                         <div class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Utama</div>
                         <a
@@ -60,7 +55,6 @@
                         </a>
                     </div>
 
-                    <!-- Master Data -->
                     <div>
                         <div class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Master Data</div>
                         <div class="space-y-1">
@@ -108,7 +102,6 @@
                         </div>
                     </div>
 
-                    <!-- Transaksi Stok -->
                     <div>
                         <div class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Transaksi Stok</div>
                         <div class="space-y-1">
@@ -138,7 +131,6 @@
                         </div>
                     </div>
 
-                    <!-- Laporan & Audit -->
                     <div>
                         <div class="px-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Laporan & Audit</div>
                         <div class="space-y-1">
@@ -169,7 +161,6 @@
                     </div>
                 </nav>
 
-                <!-- User profile footer -->
                 <div class="p-3.5 border-t border-slate-100 bg-slate-50/60">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2.5 min-w-0">
@@ -196,9 +187,7 @@
                 </div>
             </aside>
 
-            <!-- Main Content Area -->
             <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <!-- Top Header -->
                 <header class="h-16 bg-white/90 border-b border-slate-200/80 backdrop-blur sticky top-0 z-30 px-6 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <button
@@ -221,7 +210,6 @@
                     </div>
                 </header>
 
-                <!-- Page Body -->
                 <main class="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50">
                     {{ $slot }}
                 </main>

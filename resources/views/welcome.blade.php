@@ -18,7 +18,6 @@
     </head>
     <body class="min-h-screen bg-slate-50 text-slate-800 font-sans antialiased selection:bg-indigo-600 selection:text-white">
         <div class="relative min-h-screen flex flex-col justify-between overflow-hidden">
-            <!-- Navbar -->
             <header class="border-b border-slate-200/80 backdrop-blur bg-white/80 sticky top-0 z-50">
                 <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -44,9 +43,7 @@
                 </div>
             </header>
 
-            <!-- Main Content -->
             <main class="max-w-6xl mx-auto px-6 py-16 flex-1 w-full">
-                <!-- Hero section -->
                 <div class="text-center max-w-2xl mx-auto mb-12">
                     <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 font-medium mb-6">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -67,7 +64,6 @@
                     </div>
                 </div>
 
-                <!-- Feature Badges -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
                     <div class="p-6 rounded-2xl bg-white border border-slate-200/80 shadow-sm">
                         <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-4">
@@ -101,7 +97,6 @@
                 </div>
             </main>
 
-            <!-- Footer -->
             <footer class="border-t border-slate-200 py-6 text-center text-xs text-slate-500 bg-white">
                 Berkah Mandiri Inventory &bull; Sistem Informasi Stok Barang UMKM
             </footer>

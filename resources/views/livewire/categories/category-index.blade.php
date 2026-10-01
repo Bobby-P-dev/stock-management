@@ -1,5 +1,4 @@
 <div class="space-y-6 max-w-5xl mx-auto">
-    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <h1 class="text-xl font-bold text-slate-900 tracking-tight">Kategori Barang</h1>
@@ -23,7 +22,6 @@
     </div>
     @endif
 
-    <!-- Search box -->
     <div class="max-w-md">
         <div class="relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
@@ -38,7 +36,6 @@
         </div>
     </div>
 
-    <!-- Table -->
     <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
@@ -104,7 +101,6 @@
         </div>
     </div>
 
-    <!-- Modal Form -->
     @if($showModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
         <div class="bg-white border border-slate-200 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4">

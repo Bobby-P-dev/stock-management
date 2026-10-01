@@ -15,22 +15,20 @@ use Livewire\Component;
 #[Title('Laporan Inventaris & Mutasi Stok - Berkah Mandiri Inventory')]
 class ReportIndex extends Component
 {
-    public string $activeTab = 'stock'; // 'stock', 'in', 'out'
+    public string $activeTab = 'stock';
 
-    // Filter & Analisis Ranking Stok
     public string $stockCategory = '';
 
     public string $stockStatus = '';
 
-    public string $stockSortBy = 'turnover'; // 'turnover', 'most_sold', 'most_in', 'stock_desc', 'stock_asc', 'name'
+    public string $stockSortBy = 'turnover';
 
-    public string $stockVelocity = ''; // '', 'FAST_MOVING', 'MEDIUM_MOVING', 'SLOW_MOVING', 'NON_MOVING'
+    public string $stockVelocity = '';
 
     public ?string $stockStartDate = null;
 
     public ?string $stockEndDate = null;
 
-    // Filter Mutasi Transaksi (In / Out)
     public string $startDate = '';
 
     public string $endDate = '';
@@ -55,7 +53,6 @@ class ReportIndex extends Component
         $categories = Category::active()->get();
         $suppliers = Supplier::active()->get();
 
-        // 1. Data Laporan Stok dengan Analisis Mutasi & Ranking
         $stockProducts = collect();
         $stockSummary = [
             'total_products' => 0,
@@ -79,7 +76,6 @@ class ReportIndex extends Component
             $stockSummary = $analysis['summary'];
         }
 
-        // 2. Data Laporan Barang Masuk
         $stockInTransactions = [];
         if ($this->activeTab === 'in') {
             $stockInTransactions = StockTransaction::in()
@@ -91,7 +87,6 @@ class ReportIndex extends Component
                 ->get();
         }
 
-        // 3. Data Laporan Barang Keluar
         $stockOutTransactions = [];
         if ($this->activeTab === 'out') {
             $stockOutTransactions = StockTransaction::out()

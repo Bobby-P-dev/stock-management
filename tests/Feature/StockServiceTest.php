@@ -112,14 +112,12 @@ class StockServiceTest extends TestCase
 
     public function test_stock_out_decreases_product_stock_and_records_transaction(): void
     {
-        // Berikan stok awal 40
         $this->stockService->recordStockIn(
             ['transaction_date' => '2026-09-30', 'supplier_id' => $this->supplier->id],
             [['product_id' => $this->product->id, 'quantity' => 40]],
             $this->admin->id
         );
 
-        // Keluarkan stok 15
         $outTx = $this->stockService->recordStockOut(
             [
                 'transaction_date' => '2026-09-30',
@@ -144,7 +142,6 @@ class StockServiceTest extends TestCase
 
     public function test_stock_out_prevents_negative_stock_and_throws_validation_exception(): void
     {
-        // Stok saat ini 10
         $this->stockService->recordStockIn(
             ['transaction_date' => '2026-09-30', 'supplier_id' => $this->supplier->id],
             [['product_id' => $this->product->id, 'quantity' => 10]],
@@ -153,7 +150,6 @@ class StockServiceTest extends TestCase
 
         $this->expectException(ValidationException::class);
 
-        // Coba keluarkan stok 15 (melebihi 10) -> Harus gagal
         $this->stockService->recordStockOut(
             [
                 'transaction_date' => '2026-09-30',
@@ -165,35 +161,30 @@ class StockServiceTest extends TestCase
             $this->petugas->id
         );
 
-        // Pastikan stok tidak berubah (tetap 10)
         $this->product->refresh();
         $this->assertEquals(10, $this->product->current_stock);
     }
 
     public function test_stock_card_calculates_chronological_running_balance_correctly(): void
     {
-        // 1. Masuk 50 -> Saldo 50
         $this->stockService->recordStockIn(
             ['transaction_date' => '2026-09-01', 'supplier_id' => $this->supplier->id],
             [['product_id' => $this->product->id, 'quantity' => 50]],
             $this->admin->id
         );
 
-        // 2. Keluar 10 -> Saldo 40
         $this->stockService->recordStockOut(
             ['transaction_date' => '2026-09-05', 'recipient' => 'Divisi A'],
             [['product_id' => $this->product->id, 'quantity' => 10]],
             $this->petugas->id
         );
 
-        // 3. Masuk 30 -> Saldo 70
         $this->stockService->recordStockIn(
             ['transaction_date' => '2026-09-12', 'supplier_id' => $this->supplier->id],
             [['product_id' => $this->product->id, 'quantity' => 30]],
             $this->admin->id
         );
 
-        // 4. Keluar 20 -> Saldo 50
         $this->stockService->recordStockOut(
             ['transaction_date' => '2026-09-20', 'recipient' => 'Divisi B'],
             [['product_id' => $this->product->id, 'quantity' => 20]],
@@ -207,7 +198,6 @@ class StockServiceTest extends TestCase
         $this->assertEquals(50, $card['final_balance']);
         $this->assertCount(4, $card['ledger']);
 
-        // Verifikasi saldo per baris
         $this->assertEquals(50, $card['ledger'][0]['balance']);
         $this->assertEquals(40, $card['ledger'][1]['balance']);
         $this->assertEquals(70, $card['ledger'][2]['balance']);

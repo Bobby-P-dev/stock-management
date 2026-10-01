@@ -212,7 +212,6 @@ class StockService
                     'item_notes' => $item['item_notes'] ?? null,
                 ]);
 
-                // Perbarui stok aktual produk ke hasil hitungan fisik
                 $product->update(['current_stock' => $physicalStock]);
             }
 
@@ -231,7 +230,6 @@ class StockService
 
         $initialBalance = 0;
         if ($startDate) {
-            // Hitung mutasi sebelum tanggal awal
             $priorIn = (int) StockTransactionItem::where('product_id', $productId)
                 ->whereHas('stockTransaction', function ($query) use ($startDate) {
                     $query->where('type', 'IN')->where('transaction_date', '<', $startDate);
@@ -253,7 +251,6 @@ class StockService
             $initialBalance = $priorIn - $priorOut + $priorOpnameDiff;
         }
 
-        // 1. Ambil transaksi masuk & keluar pada periode terpilih
         $itemsQuery = StockTransactionItem::with(['stockTransaction.supplier', 'stockTransaction.creator'])
             ->where('product_id', $productId)
             ->whereHas('stockTransaction', function ($query) use ($startDate, $endDate) {
@@ -269,7 +266,6 @@ class StockService
 
         $transactionItems = $itemsQuery->get();
 
-        // 2. Ambil penyesuaian stock opname pada periode terpilih
         $opnameItems = StockOpnameItem::with(['stockOpname.creator'])
             ->where('product_id', $productId)
             ->whereHas('stockOpname', function ($query) use ($startDate, $endDate) {
@@ -284,7 +280,6 @@ class StockService
             ->select('stock_opname_items.*')
             ->get();
 
-        // 3. Gabungkan seluruh mutasi dan urutkan secara kronologis
         $timeline = collect();
 
         foreach ($transactionItems as $txItem) {
@@ -569,7 +564,6 @@ class StockService
             }])
             ->get();
 
-        // 1. Normalisasi data angka mutasi
         $products->each(function (Product $p) {
             $p->total_in = (int) ($p->total_in ?? 0);
             $p->total_out = (int) ($p->total_out ?? 0);
@@ -577,7 +571,6 @@ class StockService
             $p->tx_count = (int) ($p->tx_count ?? 0);
         });
 
-        // 2. Klasifikasi Kecepatan Perputaran (Velocity Classification)
         $movingProducts = $products->filter(fn (Product $p) => $p->total_movement > 0)
             ->sortByDesc('total_movement')
             ->values();
@@ -606,7 +599,6 @@ class StockService
             }
         });
 
-        // 3. Ringkasan KPI Status Perputaran
         $summary = [
             'total_products' => $products->count(),
             'fast_moving' => $products->where('velocity_status', 'FAST_MOVING')->count(),
@@ -615,7 +607,6 @@ class StockService
             'non_moving' => $products->where('velocity_status', 'NON_MOVING')->count(),
         ];
 
-        // 4. Pengurutan / Ranking Sesuai Opsi
         $sorted = match ($sortBy) {
             'most_sold' => $products->sort(function (Product $a, Product $b) {
                 if ($b->total_out === $a->total_out) {
@@ -635,7 +626,6 @@ class StockService
             'stock_asc' => $products->sortBy('current_stock'),
             'name' => $products->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE),
             default => $products->sort(function (Product $a, Product $b) {
-                // Default 'turnover': Total In + Out terbanyak, lalu Total Out, lalu Stok
                 if ($b->total_movement === $a->total_movement) {
                     if ($b->total_out === $a->total_out) {
                         return $b->current_stock <=> $a->current_stock;
@@ -648,7 +638,6 @@ class StockService
             }),
         };
 
-        // 5. Berikan nomor urut ranking (#1, #2, ...)
         $rank = 1;
         $ranked = $sorted->values()->map(function (Product $p) use (&$rank) {
             $p->rank = $rank++;
@@ -656,7 +645,6 @@ class StockService
             return $p;
         });
 
-        // 6. Filter status perputaran jika dipilih pengguna
         if ($velocityStatus) {
             $ranked = $ranked->where('velocity_status', $velocityStatus)->values();
         }

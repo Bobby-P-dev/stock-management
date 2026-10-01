@@ -1,5 +1,4 @@
 <div class="max-w-4xl mx-auto space-y-6">
-    <!-- Header -->
     <div class="flex items-center justify-between pb-4 border-b border-slate-200">
         <div>
             <div class="flex items-center gap-2">
@@ -28,7 +27,6 @@
     @endif
 
     <form wire:submit="save" class="space-y-6">
-        <!-- Dokumen Header -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-6 space-y-4 shadow-sm">
             <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                 <x-heroicon-o-document-text class="w-4 h-4 text-indigo-600" />
@@ -73,7 +71,6 @@
             </div>
         </div>
 
-        <!-- Rincian Item Barang (Dynamic Repeater) -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-6 space-y-4 shadow-sm">
             <div class="flex items-center justify-between pb-3 border-b border-slate-100">
                 <div>
@@ -155,7 +152,6 @@
             </div>
         </div>
 
-        <!-- Action Submit -->
         <div class="flex items-center justify-end gap-3 pt-2">
             <a
                 href="{{ route('transactions.index') }}"

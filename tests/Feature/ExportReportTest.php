@@ -62,7 +62,6 @@ class ExportReportTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Catat transaksi masuk
         $this->stockService->recordStockIn(
             [
                 'transaction_date' => now()->toDateString(),
@@ -79,7 +78,6 @@ class ExportReportTest extends TestCase
             $this->admin->id
         );
 
-        // Catat transaksi keluar
         $this->stockService->recordStockOut(
             [
                 'transaction_date' => now()->toDateString(),

@@ -66,7 +66,6 @@ class StockOpnameTest extends TestCase
             'is_active' => true,
         ]);
 
-        // Catat saldo stok awal 50 unit via transaksi masuk resmi
         $this->stockService->recordStockIn(
             [
                 'transaction_date' => now()->toDateString(),
@@ -94,7 +93,7 @@ class StockOpnameTest extends TestCase
             [
                 [
                     'product_id' => $this->product->id,
-                    'physical_stock' => 46, // Selisih -4 (rusak/bocor)
+                    'physical_stock' => 46,
                     'reason' => 'RUSAK',
                     'item_notes' => '4 bungkus rusak terkena air',
                 ],
@@ -116,13 +115,11 @@ class StockOpnameTest extends TestCase
             'reason' => 'RUSAK',
         ]);
 
-        // Stok produk di tabel products harus terupdate menjadi 46
         $this->assertEquals(46, $this->product->fresh()->current_stock);
     }
 
     public function test_stock_opname_updates_stock_card_ledger_and_running_balance(): void
     {
-        // Catat opname
         $this->stockService->recordStockOpname(
             [
                 'opname_date' => now()->toDateString(),
@@ -131,7 +128,7 @@ class StockOpnameTest extends TestCase
             [
                 [
                     'product_id' => $this->product->id,
-                    'physical_stock' => 45, // -5
+                    'physical_stock' => 45,
                     'reason' => 'HILANG',
                     'item_notes' => 'Hilang saat pemindahan rak',
                 ],
@@ -160,7 +157,7 @@ class StockOpnameTest extends TestCase
             [
                 [
                     'product_id' => $this->product->id,
-                    'physical_stock' => 55, // +5 surplus
+                    'physical_stock' => 55,
                     'reason' => 'SELISIH_HITUNG',
                     'item_notes' => 'Kelebihan penerimaan supplier yang belum tercatat',
                 ],
