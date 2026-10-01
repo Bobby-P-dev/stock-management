@@ -26,10 +26,16 @@ if [ ! -L /var/www/html/public/storage ]; then
     php artisan storage:link || true
 fi
 
-# Jalankan migrasi database otomatis jika RUN_MIGRATIONS=true
-if [ "$RUN_MIGRATIONS" = "true" ] || [ "$RUN_MIGRATIONS" = "1" ]; then
+# Jalankan migrasi database otomatis jika RUN_MIGRATIONS=true (default: true)
+if [ "${RUN_MIGRATIONS:-true}" = "true" ] || [ "$RUN_MIGRATIONS" = "1" ]; then
     echo "==> Menjalankan migrasi database..."
     php artisan migrate --force || echo "Peringatan: Gagal menjalankan migrasi, pastikan database sudah terhubung."
+fi
+
+# Jalankan database seeder otomatis jika RUN_SEEDER=true (default: true)
+if [ "${RUN_SEEDER:-true}" = "true" ] || [ "$RUN_SEEDER" = "1" ]; then
+    echo "==> Menjalankan database seeder (aman: otomatis skip jika data sudah ada)..."
+    php artisan db:seed --force || echo "Peringatan: Gagal menjalankan seeder."
 fi
 
 # Optimasi cache untuk production / staging

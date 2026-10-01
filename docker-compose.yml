@@ -13,6 +13,7 @@ services:
       - APP_ENV=${APP_ENV:-production}
       - APP_DEBUG=${APP_DEBUG:-false}
       - RUN_MIGRATIONS=${RUN_MIGRATIONS:-true}
+      - RUN_SEEDER=${RUN_SEEDER:-true}
     volumes:
       # Persistent storage untuk file upload/ekspor dokumen
       - app_storage:/var/www/html/storage/app

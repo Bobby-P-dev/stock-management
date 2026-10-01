@@ -19,6 +19,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Proteksi: jangan jalankan ulang jika user admin sudah terdaftar
+        if (User::where('email', 'admin@stock.com')->exists()) {
+            $this->command?->info('Data awal sudah ada di database. Melewati proses seeding.');
+
+            return;
+        }
+
         // 1. Akun Pengguna
         $admin = User::create([
             'name' => 'Administrator',
