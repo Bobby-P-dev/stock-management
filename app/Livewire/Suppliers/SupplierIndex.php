@@ -3,6 +3,7 @@
 namespace App\Livewire\Suppliers;
 
 use App\Models\Supplier;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -34,14 +35,22 @@ class SupplierIndex extends Component
 
     protected function rules(): array
     {
-        return [
-            'code' => ['required', 'string', 'max:20', 'unique:suppliers,code,'.$this->editingSupplierId],
+        $rules = [
+            'code' => ['required', 'string', 'max:20'],
             'name' => ['required', 'string', 'max:150'],
             'phone' => ['nullable', 'string', 'max:25'],
             'email' => ['nullable', 'email', 'max:150'],
             'address' => ['nullable', 'string'],
             'is_active' => ['boolean'],
         ];
+
+        if ($this->editingSupplierId) {
+            $rules['code'][] = Rule::unique('suppliers', 'code')->ignore($this->editingSupplierId);
+        } else {
+            $rules['code'][] = Rule::unique('suppliers', 'code');
+        }
+
+        return $rules;
     }
 
     public function create(): void

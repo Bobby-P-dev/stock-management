@@ -5,6 +5,7 @@ namespace App\Livewire\Products;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Unit;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -40,14 +41,22 @@ class ProductIndex extends Component
 
     protected function rules(): array
     {
-        return [
-            'sku' => ['required', 'string', 'max:50', 'unique:products,sku,'.$this->editingProductId],
+        $rules = [
+            'sku' => ['required', 'string', 'max:50'],
             'name' => ['required', 'string', 'max:200'],
             'category_id' => ['required', 'exists:categories,id'],
             'unit_id' => ['required', 'exists:units,id'],
             'minimum_stock' => ['required', 'integer', 'min:0'],
             'is_active' => ['boolean'],
         ];
+
+        if ($this->editingProductId) {
+            $rules['sku'][] = Rule::unique('products', 'sku')->ignore($this->editingProductId);
+        } else {
+            $rules['sku'][] = Rule::unique('products', 'sku');
+        }
+
+        return $rules;
     }
 
     public function updatingSearch(): void

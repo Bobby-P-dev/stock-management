@@ -4,6 +4,7 @@ namespace App\Livewire\Users;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -35,13 +36,21 @@ class UserIndex extends Component
     {
         $passwordRule = $this->editingUserId ? ['nullable', 'string', 'min:6'] : ['required', 'string', 'min:6'];
 
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:100'],
-            'email' => ['required', 'email', 'max:150', 'unique:users,email,'.$this->editingUserId],
+            'email' => ['required', 'email', 'max:150'],
             'password' => $passwordRule,
             'role' => ['required', 'in:admin,petugas'],
             'is_active' => ['boolean'],
         ];
+
+        if ($this->editingUserId) {
+            $rules['email'][] = Rule::unique('users', 'email')->ignore($this->editingUserId);
+        } else {
+            $rules['email'][] = Rule::unique('users', 'email');
+        }
+
+        return $rules;
     }
 
     public function create(): void

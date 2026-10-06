@@ -3,6 +3,7 @@
 namespace App\Livewire\Categories;
 
 use App\Models\Category;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -28,11 +29,19 @@ class CategoryIndex extends Component
 
     protected function rules(): array
     {
-        return [
-            'name' => ['required', 'string', 'max:100', 'unique:categories,name,'.$this->editingCategoryId],
+        $rules = [
+            'name' => ['required', 'string', 'max:100'],
             'description' => ['nullable', 'string', 'max:255'],
             'is_active' => ['boolean'],
         ];
+
+        if ($this->editingCategoryId) {
+            $rules['name'][] = Rule::unique('categories', 'name')->ignore($this->editingCategoryId);
+        } else {
+            $rules['name'][] = Rule::unique('categories', 'name');
+        }
+
+        return $rules;
     }
 
     public function create(): void

@@ -3,6 +3,7 @@
 namespace App\Livewire\Units;
 
 use App\Models\Unit;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -28,11 +29,21 @@ class UnitIndex extends Component
 
     protected function rules(): array
     {
-        return [
-            'name' => ['required', 'string', 'max:50', 'unique:units,name,'.$this->editingUnitId],
-            'symbol' => ['required', 'string', 'max:15', 'unique:units,symbol,'.$this->editingUnitId],
+        $rules = [
+            'name' => ['required', 'string', 'max:50'],
+            'symbol' => ['required', 'string', 'max:15'],
             'is_active' => ['boolean'],
         ];
+
+        if ($this->editingUnitId) {
+            $rules['name'][] = Rule::unique('units', 'name')->ignore($this->editingUnitId);
+            $rules['symbol'][] = Rule::unique('units', 'symbol')->ignore($this->editingUnitId);
+        } else {
+            $rules['name'][] = Rule::unique('units', 'name');
+            $rules['symbol'][] = Rule::unique('units', 'symbol');
+        }
+
+        return $rules;
     }
 
     public function create(): void
