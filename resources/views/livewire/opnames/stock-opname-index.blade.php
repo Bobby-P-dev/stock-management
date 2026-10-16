@@ -69,7 +69,6 @@
                         <th class="py-3 px-4 font-semibold">No. Dokumen Opname</th>
                         <th class="py-3 px-4 font-semibold">Tanggal Fisik</th>
                         <th class="py-3 px-4 font-semibold text-center">Jumlah Barang</th>
-                        <th class="py-3 px-4 font-semibold text-center">Akumulasi Selisih</th>
                         <th class="py-3 px-4 font-semibold">Catatan / Berita Acara</th>
                         <th class="py-3 px-4 font-semibold">Petugas Pemeriksa</th>
                         <th class="py-3 px-4 font-semibold text-right">Aksi</th>
@@ -77,9 +76,6 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @forelse($opnames as $op)
-                    @php
-                        $totalDiff = $op->items->sum('difference');
-                    @endphp
                     <tr class="hover:bg-slate-50/80 transition">
                         <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
                             {{ $op->opname_no }}
@@ -91,21 +87,6 @@
                             <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold text-[11px] border border-slate-200/60">
                                 {{ $op->items->count() }} jenis barang
                             </span>
-                        </td>
-                        <td class="py-3.5 px-4 text-center">
-                            @if($totalDiff === 0)
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                Cocok (0)
-                            </span>
-                            @elseif($totalDiff < 0)
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                Kurang ({{ $totalDiff }})
-                            </span>
-                            @else
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                                Lebih (+{{ $totalDiff }})
-                            </span>
-                            @endif
                         </td>
                         <td class="py-3.5 px-4 text-slate-600 max-w-xs truncate">
                             {{ $op->note ?: '-' }}
@@ -126,7 +107,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="py-12 text-center text-slate-400">
+                        <td colspan="6" class="py-12 text-center text-slate-400">
                             <x-heroicon-o-inbox class="w-8 h-8 text-slate-300 mx-auto mb-2" />
                             Belum ada riwayat dokumen Stock Opname yang tercatat.
                         </td>
