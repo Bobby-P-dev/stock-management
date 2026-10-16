@@ -167,13 +167,15 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Peran Akses (Role) *</label>
-                    <select
+                    <x-searchable-select
                         wire:model="role"
-                        class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
-                    >
-                        <option value="petugas">Petugas (Transaksi Masuk/Keluar, Stok & Laporan)</option>
-                        <option value="admin">Admin (Akses Penuh Master Data, Users, Transaksi & Laporan)</option>
-                    </select>
+                        :options="[
+                            ['value' => 'petugas', 'label' => 'Petugas (Transaksi Masuk/Keluar, Stok & Laporan)'],
+                            ['value' => 'admin', 'label' => 'Admin (Akses Penuh Master Data, Users, Transaksi & Laporan)']
+                        ]"
+                        placeholder="Pilih Role"
+                        searchPlaceholder="Cari role..."
+                    />
                     @error('role') <span class="text-[11px] text-rose-600">{{ $message }}</span> @enderror
                 </div>
 

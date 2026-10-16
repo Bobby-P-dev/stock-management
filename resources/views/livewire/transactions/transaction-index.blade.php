@@ -49,14 +49,16 @@
 
         <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Jenis Transaksi</label>
-            <select
+            <x-searchable-select
                 wire:model.live="typeFilter"
-                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
-            >
-                <option value="">Semua (IN & OUT)</option>
-                <option value="IN">Hanya Barang Masuk (IN)</option>
-                <option value="OUT">Hanya Barang Keluar (OUT)</option>
-            </select>
+                :options="[
+                    ['value' => '', 'label' => 'Semua (IN & OUT)'],
+                    ['value' => 'IN', 'label' => 'Hanya Barang Masuk (IN)'],
+                    ['value' => 'OUT', 'label' => 'Hanya Barang Keluar (OUT)']
+                ]"
+                placeholder="Semua (IN & OUT)"
+                searchPlaceholder="Cari jenis transaksi..."
+            />
         </div>
 
         <div>

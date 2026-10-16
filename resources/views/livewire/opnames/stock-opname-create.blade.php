@@ -100,16 +100,13 @@
                             </td>
 
                             <td class="py-3 px-3">
-                                <select
+                                <x-searchable-select
+                                    wire:key="stock-opname-item-{{ $index }}"
                                     wire:model.live="items.{{ $index }}.product_id"
-                                    required
-                                    class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition font-medium"
-                                >
-                                    <option value="">-- Pilih Barang --</option>
-                                    @foreach($products as $p)
-                                    <option value="{{ $p->id }}">{{ $p->sku }} - {{ $p->name }}</option>
-                                    @endforeach
-                                </select>
+                                    :options="$products"
+                                    placeholder="-- Pilih Barang --"
+                                    searchPlaceholder="Cari nama atau SKU..."
+                                />
                                 @error("items.{$index}.product_id")
                                     <span class="text-[10px] text-rose-600 mt-0.5 block">{{ $message }}</span>
                                 @enderror
@@ -150,17 +147,20 @@
                             </td>
 
                             <td class="py-3 px-3">
-                                <select
+                                <x-searchable-select
+                                    wire:key="stock-opname-reason-{{ $index }}"
                                     wire:model="items.{{ $index }}.reason"
-                                    class="w-full px-2 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
-                                >
-                                    <option value="SESUAI">Stok Sesuai (Fisik Cocok)</option>
-                                    <option value="RUSAK">Barang Rusak / Cacat</option>
-                                    <option value="HILANG">Barang Hilang / Kurang</option>
-                                    <option value="KADALUWARSA">Kadaluwarsa / Expired</option>
-                                    <option value="SELISIH_HITUNG">Koreksi Salah Hitung</option>
-                                    <option value="LAINNYA">Alasan Lainnya</option>
-                                </select>
+                                    :options="[
+                                        ['value' => 'SESUAI', 'label' => 'Stok Sesuai (Fisik Cocok)'],
+                                        ['value' => 'RUSAK', 'label' => 'Barang Rusak / Cacat'],
+                                        ['value' => 'HILANG', 'label' => 'Barang Hilang / Kurang'],
+                                        ['value' => 'KADALUWARSA', 'label' => 'Kadaluwarsa / Expired'],
+                                        ['value' => 'SELISIH_HITUNG', 'label' => 'Koreksi Salah Hitung'],
+                                        ['value' => 'LAINNYA', 'label' => 'Alasan Lainnya']
+                                    ]"
+                                    placeholder="Pilih Alasan"
+                                    searchPlaceholder="Cari alasan..."
+                                />
                             </td>
 
                             <td class="py-3 px-3">

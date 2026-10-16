@@ -103,17 +103,13 @@
                             </span>
                             @endif
                         </div>
-                        <select
+                        <x-searchable-select
+                            wire:key="stock-out-item-{{ $index }}"
                             wire:model.live="items.{{ $index }}.product_id"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
-                        >
-                            <option value="">Pilih Barang...</option>
-                            @foreach($products as $product)
-                            <option value="{{ $product->id }}">
-                                {{ $product->sku }} - {{ $product->name }} (Sisa: {{ $product->current_stock }} {{ $product->unit->symbol }})
-                            </option>
-                            @endforeach
-                        </select>
+                            :options="$products"
+                            placeholder="Pilih Barang..."
+                            searchPlaceholder="Cari nama atau SKU..."
+                        />
                         @error("items.{$index}.product_id") <span class="text-[10px] text-rose-600">{{ $message }}</span> @enderror
                     </div>
 

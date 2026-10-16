@@ -1,0 +1,194 @@
+@props([
+    'options' => [],
+    'placeholder' => 'Pilih...',
+    'searchPlaceholder' => 'Ketik untuk mencari...',
+    'emptyMessage' => 'Tidak ada data yang cocok',
+    'limit' => 5,
+    'required' => false,
+])
+
+@php
+    $normalizedOptions = collect($options)->map(function ($item, $key) {
+        if (is_object($item)) {
+            $value = $item->id ?? $item->value ?? $key;
+            if (isset($item->sku, $item->name)) {
+                $label = $item->sku . ' - ' . $item->name;
+                if (isset($item->current_stock, $item->unit->symbol)) {
+                    $label .= " (Sisa: {$item->current_stock} {$item->unit->symbol})";
+                } elseif (isset($item->unit->symbol)) {
+                    $label .= " ({$item->unit->symbol})";
+                }
+            } elseif (isset($item->code, $item->name)) {
+                $label = $item->code . ' - ' . $item->name;
+            } elseif (isset($item->name, $item->symbol)) {
+                $label = $item->name . ' (' . $item->symbol . ')';
+            } elseif (isset($item->name)) {
+                $label = $item->name;
+            } elseif (isset($item->label)) {
+                $label = $item->label;
+            } else {
+                $label = (string) $item;
+            }
+            return ['value' => (string) $value, 'label' => (string) $label];
+        } elseif (is_array($item)) {
+            $value = $item['value'] ?? $item['id'] ?? $key;
+            $label = $item['label'] ?? $item['name'] ?? (string) $value;
+            return ['value' => (string) $value, 'label' => (string) $label];
+        } else {
+            return ['value' => (string) $key, 'label' => (string) $item];
+        }
+    })->values()->toArray();
+@endphp
+
+<div
+    x-data="{
+        open: false,
+        search: '',
+        value: null,
+        limit: {{ $limit }},
+        highlightIndex: 0,
+        options: @js($normalizedOptions),
+        init() {
+            this.$watch('options', () => {
+                this.highlightIndex = 0;
+            });
+        },
+        get selectedLabel() {
+            if (this.value === null || this.value === '' || this.value === undefined) {
+                return '';
+            }
+            let found = this.options.find(o => String(o.value) === String(this.value));
+            return found ? found.label : '';
+        },
+        get filteredOptions() {
+            if (!this.search || !this.search.trim()) {
+                return this.options.slice(0, this.limit);
+            }
+            let q = this.search.toLowerCase().trim();
+            return this.options.filter(o => o.label.toLowerCase().includes(q)).slice(0, this.limit);
+        },
+        select(val) {
+            this.value = val;
+            this.search = '';
+            this.open = false;
+            this.$nextTick(() => {
+                if (this.$refs.hiddenInput) {
+                    this.$refs.hiddenInput.value = val;
+                    this.$refs.hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    this.$refs.hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+            this.$dispatch('input', val);
+            this.$dispatch('change', val);
+        },
+        clear() {
+            this.value = '';
+            this.search = '';
+            this.open = false;
+            this.$nextTick(() => {
+                if (this.$refs.hiddenInput) {
+                    this.$refs.hiddenInput.value = '';
+                    this.$refs.hiddenInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    this.$refs.hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            });
+            this.$dispatch('input', '');
+            this.$dispatch('change', '');
+        },
+        selectHighlighted() {
+            if (this.filteredOptions.length > 0 && this.highlightIndex >= 0 && this.highlightIndex < this.filteredOptions.length) {
+                this.select(this.filteredOptions[this.highlightIndex].value);
+            }
+        },
+        moveHighlight(direction) {
+            if (!this.open) {
+                this.open = true;
+                return;
+            }
+            let max = this.filteredOptions.length - 1;
+            if (max < 0) return;
+            this.highlightIndex += direction;
+            if (this.highlightIndex < 0) this.highlightIndex = max;
+            if (this.highlightIndex > max) this.highlightIndex = 0;
+        }
+    }"
+    x-modelable="value"
+    x-effect="options = @js($normalizedOptions)"
+    {{ $attributes->whereDoesntStartWith('class') }}
+    @click.outside="open = false; search = ''"
+    @keydown.escape.window="open = false; search = ''"
+    class="relative z-20 {{ $attributes->get('class') }}"
+>
+    <!-- Hidden input for standard form/Livewire capture -->
+    <input type="hidden" x-ref="hiddenInput" :value="value">
+
+    <!-- Searchable Input with dropdown toggle -->
+    <div class="relative">
+        <input
+            type="text"
+            x-model="search"
+            @focus="open = true; highlightIndex = 0"
+            @click="open = true"
+            @keydown.arrow-down.prevent="moveHighlight(1)"
+            @keydown.arrow-up.prevent="moveHighlight(-1)"
+            @keydown.enter.prevent="selectHighlighted()"
+            :placeholder="selectedLabel || '{{ $placeholder }}'"
+            class="w-full px-3 py-2 pr-14 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
+            :class="selectedLabel && !search ? 'placeholder:text-slate-800 placeholder:font-medium' : 'placeholder:text-slate-400 placeholder:font-normal'"
+            autocomplete="off"
+        >
+
+        <div class="absolute inset-y-0 right-0 flex items-center pr-2 gap-1">
+            <button
+                type="button"
+                x-show="search.length > 0"
+                @click.stop="search = ''"
+                class="p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+                title="Hapus pencarian"
+                style="display: none;"
+            >
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+
+            <button
+                type="button"
+                @click.stop="open = !open; if(open) highlightIndex = 0"
+                class="p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+                <svg class="w-4 h-4 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Dropdown List (Limit to 5 items) -->
+    <div
+        x-show="open"
+        class="absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden py-1"
+        style="display: none;"
+    >
+        <div class="max-h-52 overflow-y-auto divide-y divide-slate-50">
+            <template x-for="(opt, idx) in filteredOptions" :key="opt.value">
+                <button
+                    type="button"
+                    @click="select(opt.value)"
+                    @mouseenter="highlightIndex = idx"
+                    class="w-full px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-50 transition flex items-center justify-between gap-2 cursor-pointer"
+                    :class="{
+                        'bg-indigo-50/70 text-indigo-700 font-semibold': String(opt.value) === String(value),
+                        'bg-slate-100': highlightIndex === idx && String(opt.value) !== String(value)
+                    }"
+                >
+                    <span class="truncate" x-text="opt.label"></span>
+                    <span x-show="String(opt.value) === String(value)" class="text-indigo-600 text-xs font-bold shrink-0">✓</span>
+                </button>
+            </template>
+            <div x-show="filteredOptions.length === 0" class="px-3 py-2.5 text-center text-xs text-slate-400">
+                {{ $emptyMessage }}
+            </div>
+        </div>
+    </div>
+</div>

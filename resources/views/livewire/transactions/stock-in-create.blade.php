@@ -46,15 +46,12 @@
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-700 mb-1">Mitra Supplier *</label>
-                    <select
+                    <x-searchable-select
                         wire:model="supplier_id"
-                        class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
-                    >
-                        <option value="">Pilih Supplier Pengirim</option>
-                        @foreach($suppliers as $supplier)
-                        <option value="{{ $supplier->id }}">{{ $supplier->code }} - {{ $supplier->name }}</option>
-                        @endforeach
-                    </select>
+                        :options="$suppliers"
+                        placeholder="Pilih Supplier Pengirim"
+                        searchPlaceholder="Cari supplier..."
+                    />
                     @error('supplier_id') <span class="text-[11px] text-rose-600">{{ $message }}</span> @enderror
                 </div>
             </div>
@@ -96,17 +93,13 @@
                 <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center gap-3">
                     <div class="flex-1 w-full sm:w-auto">
                         <label class="block text-[10px] font-semibold text-slate-600 mb-1">Barang #{{ $index + 1 }} *</label>
-                        <select
+                        <x-searchable-select
+                            wire:key="stock-in-item-{{ $index }}"
                             wire:model="items.{{ $index }}.product_id"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
-                        >
-                            <option value="">Pilih Barang...</option>
-                            @foreach($products as $product)
-                            <option value="{{ $product->id }}">
-                                {{ $product->sku }} - {{ $product->name }} (Stok saat ini: {{ $product->current_stock }} {{ $product->unit->symbol }})
-                            </option>
-                            @endforeach
-                        </select>
+                            :options="$products"
+                            placeholder="Pilih Barang..."
+                            searchPlaceholder="Cari nama atau SKU..."
+                        />
                         @error("items.{$index}.product_id") <span class="text-[10px] text-rose-600">{{ $message }}</span> @enderror
                     </div>
 

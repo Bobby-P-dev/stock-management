@@ -124,45 +124,60 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Urutan Ranking Data</label>
-                    <select wire:model.live="stockSortBy" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition">
-                        <option value="turnover">Paling Cepat (Total In + Out)</option>
-                        <option value="most_sold">Paling Laku (Total Keluar)</option>
-                        <option value="most_in">Paling Sering Masuk</option>
-                        <option value="stock_desc">Stok Fisik Terbanyak</option>
-                        <option value="stock_asc">Stok Fisik Tersedikit</option>
-                        <option value="name">Nama Barang (A-Z)</option>
-                    </select>
+                    <x-searchable-select
+                        wire:model.live="stockSortBy"
+                        :options="[
+                            ['value' => 'turnover', 'label' => 'Paling Cepat (Total In + Out)'],
+                            ['value' => 'most_sold', 'label' => 'Paling Laku (Total Keluar)'],
+                            ['value' => 'most_in', 'label' => 'Paling Sering Masuk'],
+                            ['value' => 'stock_desc', 'label' => 'Stok Fisik Terbanyak'],
+                            ['value' => 'stock_asc', 'label' => 'Stok Fisik Tersedikit'],
+                            ['value' => 'name', 'label' => 'Nama Barang (A-Z)']
+                        ]"
+                        placeholder="Urutan Data"
+                        searchPlaceholder="Cari urutan..."
+                    />
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Status Kecepatan Perputaran</label>
-                    <select wire:model.live="stockVelocity" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs font-medium focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition">
-                        <option value="">Semua Perputaran</option>
-                        <option value="FAST_MOVING">Fast Moving (Paling Cepat)</option>
-                        <option value="MEDIUM_MOVING">Medium Moving (Sedang)</option>
-                        <option value="SLOW_MOVING">Slow Moving (Lambat)</option>
-                        <option value="NON_MOVING">Non-Moving (Stok Diam)</option>
-                    </select>
+                    <x-searchable-select
+                        wire:model.live="stockVelocity"
+                        :options="[
+                            ['value' => '', 'label' => 'Semua Perputaran'],
+                            ['value' => 'FAST_MOVING', 'label' => 'Fast Moving (Paling Cepat)'],
+                            ['value' => 'MEDIUM_MOVING', 'label' => 'Medium Moving (Sedang)'],
+                            ['value' => 'SLOW_MOVING', 'label' => 'Slow Moving (Lambat)'],
+                            ['value' => 'NON_MOVING', 'label' => 'Non-Moving (Stok Diam)']
+                        ]"
+                        placeholder="Semua Perputaran"
+                        searchPlaceholder="Cari kecepatan perputaran..."
+                    />
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Filter Kategori</label>
-                    <select wire:model.live="stockCategory" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition">
-                        <option value="">Semua Kategori</option>
-                        @foreach($categories as $cat)
-                        <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                        @endforeach
-                    </select>
+                    <x-searchable-select
+                        wire:model.live="stockCategory"
+                        :options="collect([['value' => '', 'label' => 'Semua Kategori']])->concat($categories)"
+                        placeholder="Semua Kategori"
+                        searchPlaceholder="Cari kategori..."
+                    />
                 </div>
 
                 <div>
                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Status Ketersediaan</label>
-                    <select wire:model.live="stockStatus" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition">
-                        <option value="">Semua Status Stok</option>
-                        <option value="safe">Stok Aman</option>
-                        <option value="low">Stok Menipis</option>
-                        <option value="out">Stok Habis</option>
-                    </select>
+                    <x-searchable-select
+                        wire:model.live="stockStatus"
+                        :options="[
+                            ['value' => '', 'label' => 'Semua Status Stok'],
+                            ['value' => 'safe', 'label' => 'Stok Aman'],
+                            ['value' => 'low', 'label' => 'Stok Menipis'],
+                            ['value' => 'out', 'label' => 'Stok Habis']
+                        ]"
+                        placeholder="Semua Status Stok"
+                        searchPlaceholder="Cari status stok..."
+                    />
                 </div>
             </div>
 
@@ -305,12 +320,12 @@
 
             <div>
                 <label class="block text-[11px] font-semibold text-slate-600 mb-1">Filter Supplier</label>
-                <select wire:model.live="supplierId" class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition">
-                    <option value="">Semua Supplier</option>
-                    @foreach($suppliers as $sup)
-                    <option value="{{ $sup->id }}">{{ $sup->name }}</option>
-                    @endforeach
-                </select>
+                <x-searchable-select
+                    wire:model.live="supplierId"
+                    :options="collect([['value' => '', 'label' => 'Semua Supplier']])->concat($suppliers)"
+                    placeholder="Semua Supplier"
+                    searchPlaceholder="Cari supplier..."
+                />
             </div>
         </div>
 

@@ -42,28 +42,27 @@
 
         <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Filter Kategori</label>
-            <select
+            <x-searchable-select
                 wire:model.live="selectedCategory"
-                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
-            >
-                <option value="">Semua Kategori</option>
-                @foreach($categories as $cat)
-                <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                @endforeach
-            </select>
+                :options="collect([['value' => '', 'label' => 'Semua Kategori']])->concat($categories)"
+                placeholder="Semua Kategori"
+                searchPlaceholder="Cari kategori..."
+            />
         </div>
 
         <div>
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Status Ketersediaan</label>
-            <select
+            <x-searchable-select
                 wire:model.live="stockStatusFilter"
-                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
-            >
-                <option value="">Semua Status</option>
-                <option value="safe">Stok Aman</option>
-                <option value="low">Stok Menipis (&le; Min)</option>
-                <option value="out">Stok Habis (0)</option>
-            </select>
+                :options="[
+                    ['value' => '', 'label' => 'Semua Status'],
+                    ['value' => 'safe', 'label' => 'Stok Aman'],
+                    ['value' => 'low', 'label' => 'Stok Menipis (<= Min)'],
+                    ['value' => 'out', 'label' => 'Stok Habis (0)']
+                ]"
+                placeholder="Semua Status"
+                searchPlaceholder="Cari status stok..."
+            />
         </div>
     </div>
 
@@ -212,29 +211,23 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori *</label>
-                        <select
+                        <x-searchable-select
                             wire:model="category_id"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
-                        >
-                            <option value="">Pilih Kategori</option>
-                            @foreach($categories as $cat)
-                            <option value="{{ $cat->id }}">{{ $cat->name }}</option>
-                            @endforeach
-                        </select>
+                            :options="$categories"
+                            placeholder="Pilih Kategori"
+                            searchPlaceholder="Cari kategori..."
+                        />
                         @error('category_id') <span class="text-[11px] text-rose-600">{{ $message }}</span> @enderror
                     </div>
 
                     <div>
                         <label class="block text-xs font-semibold text-slate-700 mb-1">Satuan *</label>
-                        <select
+                        <x-searchable-select
                             wire:model="unit_id"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
-                        >
-                            <option value="">Pilih Satuan</option>
-                            @foreach($units as $unit)
-                            <option value="{{ $unit->id }}">{{ $unit->name }} ({{ $unit->symbol }})</option>
-                            @endforeach
-                        </select>
+                            :options="$units"
+                            placeholder="Pilih Satuan"
+                            searchPlaceholder="Cari satuan..."
+                        />
                         @error('unit_id') <span class="text-[11px] text-rose-600">{{ $message }}</span> @enderror
                     </div>
                 </div>
