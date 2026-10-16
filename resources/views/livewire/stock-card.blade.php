@@ -33,16 +33,108 @@
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm print:hidden">
-        <div>
+        <div 
+            x-data="{ open: false }" 
+            @click.outside="open = false" 
+            @keydown.escape.window="open = false" 
+            class="relative z-20"
+        >
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Pilih Produk Barang *</label>
-            <select
-                wire:model.live="productId"
-                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition font-medium"
+
+            <!-- Trigger Button -->
+            <button
+                type="button"
+                @click="open = !open; if(open) { $nextTick(() => $refs.searchInput?.focus()); }"
+                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition font-medium flex items-center justify-between gap-2 text-left cursor-pointer"
+                aria-haspopup="listbox"
+                :aria-expanded="open"
             >
-                @foreach($products as $prod)
-                <option value="{{ $prod->id }}">{{ $prod->sku }} - {{ $prod->name }}</option>
-                @endforeach
-            </select>
+                <span class="truncate">
+                    @if($selectedProduct)
+                        <span class="font-mono font-bold text-indigo-700 mr-1.5">{{ $selectedProduct->sku }}</span>
+                        <span>- {{ $selectedProduct->name }}</span>
+                    @else
+                        <span class="text-slate-400">Pilih Produk Barang...</span>
+                    @endif
+                </span>
+                <x-heroicon-o-chevron-down class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-200" ::class="open ? 'rotate-180 text-indigo-600' : ''" />
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div
+                x-show="open"
+                x-transition:enter="transition ease-out duration-100"
+                x-transition:enter-start="transform opacity-0 scale-95"
+                x-transition:enter-end="transform opacity-100 scale-100"
+                x-transition:leave="transition ease-in duration-75"
+                x-transition:leave-start="transform opacity-100 scale-100"
+                x-transition:leave-end="transform opacity-0 scale-95"
+                class="absolute z-50 left-0 right-0 mt-1.5 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
+                style="display: none;"
+            >
+                <!-- Search Box -->
+                <div class="p-2 border-b border-slate-100 bg-slate-50/70">
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-slate-400">
+                            <x-heroicon-o-magnifying-glass class="w-3.5 h-3.5" />
+                        </div>
+                        <input
+                            x-ref="searchInput"
+                            wire:model.live.debounce.300ms="productSearch"
+                            type="text"
+                            placeholder="Cari SKU atau nama barang..."
+                            class="w-full pl-8 pr-7 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-900 text-xs placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
+                            @keydown.enter.prevent
+                        >
+                        @if($productSearch)
+                        <button
+                            type="button"
+                            wire:click="$set('productSearch', '')"
+                            class="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-400 hover:text-slate-600"
+                        >
+                            <x-heroicon-o-x-mark class="w-3.5 h-3.5" />
+                        </button>
+                        @endif
+                    </div>
+                </div>
+
+                <!-- Product Options (Limit 5) -->
+                <ul class="py-1 max-h-60 overflow-y-auto divide-y divide-slate-50">
+                    @forelse($products as $prod)
+                    <li>
+                        <button
+                            type="button"
+                            wire:click="selectProduct({{ $prod->id }})"
+                            @click="open = false"
+                            class="w-full px-3 py-2 text-left text-xs hover:bg-indigo-50/70 transition flex items-center justify-between gap-2 cursor-pointer {{ $productId === $prod->id ? 'bg-indigo-50 text-indigo-900 font-semibold' : 'text-slate-700' }}"
+                        >
+                            <div class="flex items-center gap-2 truncate">
+                                <span class="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded {{ $productId === $prod->id ? 'bg-indigo-200 text-indigo-800' : 'bg-slate-100 text-slate-600' }}">
+                                    {{ $prod->sku }}
+                                </span>
+                                <span class="truncate">{{ $prod->name }}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0 text-[10px] text-slate-400">
+                                <span>{{ $prod->unit->symbol }}</span>
+                                @if($productId === $prod->id)
+                                    <x-heroicon-s-check class="w-3.5 h-3.5 text-indigo-600" />
+                                @endif
+                            </div>
+                        </button>
+                    </li>
+                    @empty
+                    <li class="px-3 py-4 text-center text-xs text-slate-400">
+                        Tidak ada barang yang cocok.
+                    </li>
+                    @endforelse
+                </ul>
+
+                <!-- Footer Limit Info -->
+                <div class="px-3 py-1.5 bg-slate-50 border-t border-slate-100 text-[10px] text-slate-400 flex items-center justify-between">
+                    <span>Maks. 5 hasil ditampilkan</span>
+                    <span wire:loading wire:target="productSearch" class="text-indigo-600 font-medium animate-pulse">Mencari...</span>
+                </div>
+            </div>
         </div>
 
         <div>

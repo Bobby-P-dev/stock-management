@@ -14,6 +14,8 @@ class StockCard extends Component
 {
     public ?int $productId = null;
 
+    public string $productSearch = '';
+
     public string $startDate = '';
 
     public string $endDate = '';
@@ -28,9 +30,29 @@ class StockCard extends Component
         }
     }
 
+    public function selectProduct(int $id): void
+    {
+        $this->productId = $id;
+        $this->productSearch = '';
+    }
+
     public function render(StockService $stockService)
     {
-        $products = Product::active()->with(['category', 'unit'])->get();
+        $products = Product::active()
+            ->with(['category', 'unit'])
+            ->when($this->productSearch, function ($query) {
+                $query->where(function ($q) {
+                    $q->where('name', 'like', '%'.$this->productSearch.'%')
+                        ->orWhere('sku', 'like', '%'.$this->productSearch.'%');
+                });
+            })
+            ->orderBy('name', 'asc')
+            ->limit(5)
+            ->get();
+
+        $selectedProduct = $this->productId
+            ? Product::with(['category', 'unit'])->find($this->productId)
+            : null;
 
         $stockCardData = null;
         if ($this->productId) {
@@ -43,6 +65,7 @@ class StockCard extends Component
 
         return view('livewire.stock-card', [
             'products' => $products,
+            'selectedProduct' => $selectedProduct,
             'stockCardData' => $stockCardData,
         ]);
     }
