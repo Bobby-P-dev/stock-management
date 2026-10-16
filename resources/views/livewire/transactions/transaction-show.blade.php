@@ -95,16 +95,10 @@
                         <th class="pb-3 font-semibold">Nama Barang</th>
                         <th class="pb-3 font-semibold">Kategori</th>
                         <th class="pb-3 font-semibold text-center">Kuantitas</th>
-                        @if($transaction->type === 'IN')
-                        <th class="pb-3 font-semibold text-right">Harga Satuan</th>
-                        <th class="pb-3 font-semibold text-right">Subtotal</th>
-                        @endif
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 print:divide-gray-200">
-                    @php $grandTotal = 0; @endphp
                     @foreach($transaction->items as $idx => $item)
-                    @php $grandTotal += $item->subtotal; @endphp
                     <tr class="hover:bg-slate-50/50 transition">
                         <td class="py-3 text-slate-400 print:text-gray-600">{{ $idx + 1 }}</td>
                         <td class="py-3 font-mono font-bold text-indigo-600 print:text-indigo-800">{{ $item->product->sku }}</td>
@@ -114,45 +108,10 @@
                             <span class="font-bold text-slate-900 print:text-black">{{ $item->quantity }}</span>
                             <span class="text-slate-400 print:text-gray-600 text-[10px]">{{ $item->product->unit->symbol }}</span>
                         </td>
-                        @if($transaction->type === 'IN')
-                        <td class="py-3 text-right text-slate-600 print:text-gray-800">
-                            {{ $item->unit_price ? 'Rp ' . number_format($item->unit_price, 0, ',', '.') : '-' }}
-                        </td>
-                        <td class="py-3 text-right font-semibold text-slate-900 print:text-black">
-                            {{ $item->subtotal ? 'Rp ' . number_format($item->subtotal, 0, ',', '.') : '-' }}
-                        </td>
-                        @endif
                     </tr>
                     @endforeach
                 </tbody>
-                @if($transaction->type === 'IN' && $grandTotal > 0)
-                <tfoot>
-                    <tr class="border-t border-slate-200 print:border-gray-300 font-bold">
-                        <td colspan="6" class="pt-4 text-right text-slate-700 print:text-gray-800">Total Nilai Pembelian:</td>
-                        <td class="pt-4 text-right text-base text-emerald-600 print:text-emerald-700 font-mono">
-                            Rp {{ number_format($grandTotal, 0, ',', '.') }}
-                        </td>
-                    </tr>
-                </tfoot>
-                @endif
             </table>
-        </div>
-
-        <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs text-slate-500 print:text-black">
-            <div>
-                <p>Petugas Penanggung Jawab,</p>
-                <div class="h-16"></div>
-                <p class="font-bold text-slate-900 print:text-black">({{ $transaction->creator->name }})</p>
-                <p class="text-[10px] text-slate-400">Berkah Mandiri Inventory</p>
-            </div>
-            <div>
-                <p>{{ $transaction->type === 'IN' ? 'Pihak Pengirim / Supplier,' : 'Pihak Penerima Barang,' }}</p>
-                <div class="h-16"></div>
-                <p class="font-bold text-slate-900 print:text-black">
-                    ({{ $transaction->type === 'IN' ? ($transaction->supplier->name ?? 'Supplier') : $transaction->recipient }})
-                </p>
-                <p class="text-[10px] text-slate-400">Tanda Tangan & Nama Terang</p>
-            </div>
         </div>
     </div>
 </div>
