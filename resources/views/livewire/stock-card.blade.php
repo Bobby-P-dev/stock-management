@@ -41,37 +41,52 @@
         >
             <label class="block text-[11px] font-semibold text-slate-600 mb-1">Pilih Produk Barang *</label>
 
-            <!-- Trigger Button -->
-            <button
-                type="button"
-                @click="open = !open; if(open) { $nextTick(() => $refs.searchInput?.focus()); }"
-                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition font-medium flex items-center justify-between gap-2 text-left cursor-pointer"
-            >
-                <span class="truncate">
-                    {{ $selectedProduct ? $selectedProduct->sku . ' - ' . $selectedProduct->name : 'Pilih Produk Barang...' }}
-                </span>
-                <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-            </button>
+            <!-- Searchable Input with dropdown toggle -->
+            <div class="relative">
+                <input
+                    id="stock-card-product-search"
+                    wire:key="stock-card-product-search"
+                    type="text"
+                    wire:model.live.debounce.250ms="productSearch"
+                    @focus="open = true"
+                    @click="open = true"
+                    placeholder="{{ $selectedProduct ? $selectedProduct->sku . ' - ' . $selectedProduct->name : 'Ketik untuk cari produk...' }}"
+                    class="w-full px-3 py-2 pr-14 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs placeholder:text-slate-800 placeholder:font-medium focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
+                    autocomplete="off"
+                >
 
-            <!-- Dropdown Menu -->
+                <div class="absolute inset-y-0 right-0 flex items-center pr-2 gap-1">
+                    @if($productSearch)
+                    <button
+                        type="button"
+                        wire:click="$set('productSearch', '')"
+                        class="p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        title="Hapus pencarian"
+                    >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    @endif
+
+                    <button
+                        type="button"
+                        @click="open = !open; if(open) $nextTick(() => document.getElementById('stock-card-product-search')?.focus())"
+                        class="p-1 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                        <svg class="w-4 h-4 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dropdown Menu (Limit 5) -->
             <div
                 x-show="open"
                 class="absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden py-1"
                 style="display: none;"
             >
-                <div class="p-1.5 border-b border-slate-100">
-                    <input
-                        x-ref="searchInput"
-                        wire:model.live.debounce.250ms="productSearch"
-                        type="text"
-                        placeholder="Ketik untuk mencari..."
-                        class="w-full px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-xs placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-600 transition"
-                        @keydown.enter.prevent
-                    >
-                </div>
-
                 <div class="max-h-48 overflow-y-auto divide-y divide-slate-50">
                     @forelse($products as $prod)
                     <button
