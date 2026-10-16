@@ -45,7 +45,7 @@
             <button
                 type="button"
                 @click="open = !open; if(open) { $nextTick(() => document.getElementById('stock-card-product-search')?.focus()); }"
-                class="w-full px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs font-medium flex items-center justify-between gap-2 shadow-xs cursor-pointer hover:border-slate-300 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
+                class="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 text-xs font-medium flex items-center justify-between gap-2 shadow-xs cursor-pointer hover:border-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
             >
                 <span class="truncate {{ $selectedProduct ? 'text-slate-800 font-medium' : 'text-slate-500 font-normal' }}">
                     {{ $selectedProduct ? $selectedProduct->sku . ' - ' . $selectedProduct->name : 'Pilih Produk Barang...' }}
@@ -55,20 +55,20 @@
                 </svg>
             </button>
 
-            <!-- Dropdown Popover matching reference design -->
+            <!-- Dropdown Popover matching normal/clean design -->
             <div
                 x-show="open"
                 x-transition:enter="transition ease-out duration-100"
-                x-transition:enter-start="transform opacity-0 scale-95"
+                x-transition:enter-start="transform opacity-0 scale-98"
                 x-transition:enter-end="transform opacity-100 scale-100"
                 x-transition:leave="transition ease-in duration-75"
                 x-transition:leave-start="transform opacity-100 scale-100"
-                x-transition:leave-end="transform opacity-0 scale-95"
-                class="absolute z-30 left-0 right-0 mt-1.5 bg-white border border-slate-200/80 rounded-2xl shadow-xl overflow-hidden py-1"
+                x-transition:leave-end="transform opacity-0 scale-98"
+                class="absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden"
                 style="display: none;"
             >
                 <!-- Search Input Header -->
-                <div class="px-3 py-2.5 border-b border-slate-100 flex items-center gap-2">
+                <div class="px-3 py-2 border-b border-slate-200 bg-slate-50/70 flex items-center gap-2">
                     <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
@@ -78,7 +78,7 @@
                         type="text"
                         wire:model.live.debounce.250ms="productSearch"
                         placeholder="Cari produk..."
-                        class="w-full text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none bg-transparent py-0.5"
+                        class="w-full text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none bg-transparent"
                         autocomplete="off"
                     >
                     @if($productSearch)
@@ -86,24 +86,24 @@
                         type="button"
                         wire:click="$set('productSearch', '')"
                         @click="$nextTick(() => document.getElementById('stock-card-product-search')?.focus())"
-                        class="w-4 h-4 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-400 hover:text-slate-600 flex items-center justify-center shrink-0 transition cursor-pointer"
+                        class="text-slate-400 hover:text-slate-600 p-0.5 shrink-0 transition cursor-pointer"
                         title="Hapus pencarian"
                     >
-                        <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                     @endif
                 </div>
 
                 <!-- Products List (Limit 5) -->
-                <div class="max-h-56 overflow-y-auto divide-y divide-slate-50 p-1.5">
+                <div class="max-h-56 overflow-y-auto">
                     @forelse($products as $prod)
                     <button
                         type="button"
                         wire:click="selectProduct({{ $prod->id }})"
                         @click="open = false"
-                        class="w-full px-3 py-2 text-left text-xs rounded-xl text-slate-700 hover:bg-slate-50 transition flex items-center justify-between gap-2 cursor-pointer {{ $productId === $prod->id ? 'bg-indigo-50/70 font-semibold text-indigo-700' : '' }}"
+                        class="w-full px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-100 transition-colors flex items-center justify-between gap-2 cursor-pointer {{ $productId === $prod->id ? 'bg-indigo-50 font-semibold text-indigo-700' : '' }}"
                     >
                         <span class="truncate">{{ $prod->sku }} - {{ $prod->name }}</span>
                         @if($productId === $prod->id)
@@ -111,17 +111,15 @@
                         @endif
                     </button>
                     @empty
-                    <!-- Empty State matching reference image -->
-                    <div class="py-8 px-4 text-center">
-                        <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-3 text-slate-400">
-                            <svg class="w-6 h-6 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </div>
-                        <div class="font-bold text-slate-900 text-sm">
+                    <!-- Empty State -->
+                    <div class="py-6 px-4 text-center">
+                        <svg class="w-6 h-6 mx-auto mb-1.5 text-slate-300 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        <div class="font-semibold text-slate-700 text-xs">
                             No results
                         </div>
-                        <div class="text-xs text-slate-500 mt-1 max-w-[220px] mx-auto leading-relaxed">
+                        <div class="text-[11px] text-slate-400 mt-0.5">
                             Tidak ada barang yang cocok dengan nama tersebut.
                         </div>
                     </div>
