@@ -220,6 +220,114 @@ class StockService
     }
 
     /**
+     * Perbarui data transaksi Stock Opname beserta rekonsiliasi ulang saldo stok barang.
+     *
+     * @param array{
+     *     opname_date: string,
+     *     note?: string|null
+     * } $headerData
+     * @param list<array{
+     *     product_id: int,
+     *     physical_stock: int,
+     *     reason?: string|null,
+     *     item_notes?: string|null
+     * }> $itemsData
+     */
+    public function updateStockOpname(StockOpname $opname, array $headerData, array $itemsData): StockOpname
+    {
+        if (empty($itemsData)) {
+            throw ValidationException::withMessages([
+                'items' => 'Minimal harus ada 1 barang dalam pemeriksaan Stock Opname.',
+            ]);
+        }
+
+        return DB::transaction(function () use ($opname, $headerData, $itemsData) {
+            $opname->load('items');
+
+            // 1. Batalkan/revert penyesuaian stok lama
+            foreach ($opname->items as $oldItem) {
+                $product = Product::where('id', $oldItem->product_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($product) {
+                    $revertedStock = $product->current_stock - $oldItem->difference;
+                    $product->update(['current_stock' => max(0, $revertedStock)]);
+                }
+            }
+
+            // 2. Hapus detail lama
+            $opname->items()->delete();
+
+            // 3. Perbarui header opname
+            $opname->update([
+                'opname_date' => $headerData['opname_date'],
+                'note' => $headerData['note'] ?? null,
+            ]);
+
+            // 4. Masukkan detail baru dan sesuaikan stok produk
+            foreach ($itemsData as $item) {
+                $product = Product::where('id', $item['product_id'])
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if (! $product->is_active) {
+                    throw ValidationException::withMessages([
+                        'items' => "Barang '{$product->name}' berstatus non-aktif dan tidak dapat diopname.",
+                    ]);
+                }
+
+                $physicalStock = (int) $item['physical_stock'];
+                if ($physicalStock < 0) {
+                    throw ValidationException::withMessages([
+                        'items' => "Stok fisik barang '{$product->name}' tidak boleh bernilai negatif.",
+                    ]);
+                }
+
+                $systemStock = $product->current_stock;
+                $difference = $physicalStock - $systemStock;
+
+                $opname->items()->create([
+                    'product_id' => $product->id,
+                    'system_stock' => $systemStock,
+                    'physical_stock' => $physicalStock,
+                    'difference' => $difference,
+                    'reason' => $item['reason'] ?? ($difference === 0 ? 'SESUAI' : 'LAINNYA'),
+                    'item_notes' => $item['item_notes'] ?? null,
+                ]);
+
+                $product->update(['current_stock' => $physicalStock]);
+            }
+
+            return $opname->fresh(['items.product.unit', 'items.product.category', 'creator']);
+        });
+    }
+
+    /**
+     * Hapus transaksi Stock Opname dan kembalikan saldo stok barang ke posisi sebelum opname.
+     */
+    public function deleteStockOpname(StockOpname $opname): void
+    {
+        DB::transaction(function () use ($opname) {
+            $opname->load('items');
+
+            foreach ($opname->items as $item) {
+                $product = Product::where('id', $item->product_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($product) {
+                    $revertedStock = $product->current_stock - $item->difference;
+                    $product->update(['current_stock' => max(0, $revertedStock)]);
+                }
+            }
+
+            $opname->items()->delete();
+            $opname->delete();
+        });
+    }
+
+    /**
      * Hitung riwayat Kartu Stok (Stock Card) secara kronologis untuk suatu produk.
      *
      * @return array<string, mixed>

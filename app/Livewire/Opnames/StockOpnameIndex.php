@@ -3,6 +3,7 @@
 namespace App\Livewire\Opnames;
 
 use App\Models\StockOpname;
+use App\Services\StockService;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -33,6 +34,15 @@ class StockOpnameIndex extends Component
     public function updatingEndDate(): void
     {
         $this->resetPage();
+    }
+
+    public function delete(int $id, StockService $stockService): void
+    {
+        $opname = StockOpname::findOrFail($id);
+        $opnameNo = $opname->opname_no;
+        $stockService->deleteStockOpname($opname);
+
+        session()->flash('success', "Dokumen Stock Opname {$opnameNo} berhasil dihapus dan penyesuaian stok telah dibatalkan.");
     }
 
     public function render()

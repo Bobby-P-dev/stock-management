@@ -10,6 +10,24 @@
 
         <div class="flex items-center gap-2">
             <a
+                href="{{ route('opnames.edit', $opname->id) }}"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold border border-amber-200 shadow-sm transition"
+            >
+                <x-heroicon-o-pencil-square class="w-4 h-4 text-amber-600" />
+                Edit Opname
+            </a>
+
+            <button
+                wire:click="delete"
+                wire:confirm="Yakin ingin menghapus dokumen Stock Opname {{ $opname->opname_no }}? Penyesuaian stok akan dibatalkan."
+                type="button"
+                class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold border border-rose-200 shadow-sm transition cursor-pointer"
+            >
+                <x-heroicon-o-trash class="w-4 h-4 text-rose-600" />
+                Hapus
+            </button>
+
+            <a
                 href="{{ route('export.opname', $opname->id) }}"
                 class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition cursor-pointer"
             >
@@ -166,21 +184,6 @@
                     @endforeach
                 </tbody>
             </table>
-        </div>
-
-        <div class="pt-10 grid grid-cols-2 gap-8 text-center text-xs text-slate-500 print:text-black">
-            <div>
-                <p>Petugas Pelaksana Pemeriksa Fisik,</p>
-                <div class="h-16"></div>
-                <p class="font-bold text-slate-900 print:text-black">({{ $opname->creator->name }})</p>
-                <p class="text-[10px] text-slate-400">Tim Audit Gudang</p>
-            </div>
-            <div>
-                <p>Penanggung Jawab / Kepala Gudang,</p>
-                <div class="h-16"></div>
-                <p class="font-bold text-slate-900 print:text-black">( ............................................ )</p>
-                <p class="text-[10px] text-slate-400">Tanda Tangan & Nama Terang</p>
-            </div>
         </div>
     </div>
 </div>

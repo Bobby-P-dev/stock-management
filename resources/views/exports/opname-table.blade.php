@@ -152,22 +152,5 @@
         </tfoot>
     </table>
 
-    <br><br>
-    <table style="border: none;">
-        <tr style="border: none;">
-            <td colspan="5" style="border: none; text-align: center;">
-                <p>Petugas Pelaksana Stock Opname,</p>
-                <br><br><br>
-                <p><strong>({{ $opname->creator->name ?? $user->name }})</strong></p>
-                <p style="font-size: 9pt; color: #64748b;">Staff Auditor Gudang</p>
-            </td>
-            <td colspan="5" style="border: none; text-align: center;">
-                <p>Mengetahui / Mengesahkan (Kepala Gudang),</p>
-                <br><br><br>
-                <p><strong>( ............................................ )</strong></p>
-                <p style="font-size: 9pt; color: #64748b;">Tanda Tangan & Nama Terang</p>
-            </td>
-        </tr>
-    </table>
 </body>
 </html>

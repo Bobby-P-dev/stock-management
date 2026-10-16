@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Livewire\Opnames\StockOpnameCreate;
+use App\Livewire\Opnames\StockOpnameEdit;
 use App\Livewire\Opnames\StockOpnameIndex;
 use App\Livewire\Opnames\StockOpnameShow;
 use App\Models\Category;
@@ -195,5 +196,75 @@ class StockOpnameTest extends TestCase
         Livewire::test(StockOpnameIndex::class)->assertStatus(200);
         Livewire::test(StockOpnameCreate::class)->assertStatus(200);
         Livewire::test(StockOpnameShow::class, ['opname' => $opname])->assertStatus(200);
+        Livewire::test(StockOpnameEdit::class, ['opname' => $opname])->assertStatus(200);
+    }
+
+    public function test_can_update_stock_opname_and_reconcile_product_stock(): void
+    {
+        $opname = $this->stockService->recordStockOpname(
+            [
+                'opname_date' => now()->toDateString(),
+                'note' => 'Audit awal',
+            ],
+            [
+                [
+                    'product_id' => $this->product->id,
+                    'physical_stock' => 45,
+                    'reason' => 'RUSAK',
+                    'item_notes' => 'Rusak 5',
+                ],
+            ],
+            $this->admin->id
+        );
+
+        $this->assertEquals(45, $this->product->fresh()->current_stock);
+
+        Livewire::actingAs($this->admin)
+            ->test(StockOpnameEdit::class, ['opname' => $opname])
+            ->set('items.0.physical_stock', 48)
+            ->set('items.0.reason', 'RUSAK')
+            ->set('items.0.item_notes', 'Hanya rusak 2')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('opnames.show', $opname->id));
+
+        $this->assertEquals(48, $this->product->fresh()->current_stock);
+        $this->assertDatabaseHas('stock_opname_items', [
+            'stock_opname_id' => $opname->id,
+            'product_id' => $this->product->id,
+            'physical_stock' => 48,
+            'difference' => -2,
+        ]);
+    }
+
+    public function test_can_delete_stock_opname_and_revert_product_stock(): void
+    {
+        $opname = $this->stockService->recordStockOpname(
+            [
+                'opname_date' => now()->toDateString(),
+                'note' => 'Audit salah input',
+            ],
+            [
+                [
+                    'product_id' => $this->product->id,
+                    'physical_stock' => 40,
+                    'reason' => 'RUSAK',
+                    'item_notes' => 'Salah hitung',
+                ],
+            ],
+            $this->admin->id
+        );
+
+        $this->assertEquals(40, $this->product->fresh()->current_stock);
+
+        Livewire::actingAs($this->admin)
+            ->test(StockOpnameIndex::class)
+            ->call('delete', $opname->id);
+
+        $this->assertDatabaseMissing('stock_opnames', ['id' => $opname->id]);
+        $this->assertDatabaseMissing('stock_opname_items', ['stock_opname_id' => $opname->id]);
+
+        // Stock reverted from 40 back to 50
+        $this->assertEquals(50, $this->product->fresh()->current_stock);
     }
 }

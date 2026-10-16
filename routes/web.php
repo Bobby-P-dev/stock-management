@@ -5,6 +5,7 @@ use App\Livewire\Auth\Login;
 use App\Livewire\Categories\CategoryIndex;
 use App\Livewire\Dashboard;
 use App\Livewire\Opnames\StockOpnameCreate;
+use App\Livewire\Opnames\StockOpnameEdit;
 use App\Livewire\Opnames\StockOpnameIndex;
 use App\Livewire\Opnames\StockOpnameShow;
 use App\Livewire\Products\ProductIndex;
@@ -45,6 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/opnames', StockOpnameIndex::class)->name('opnames.index');
     Route::get('/opnames/create', StockOpnameCreate::class)->name('opnames.create');
     Route::get('/opnames/{opname}', StockOpnameShow::class)->name('opnames.show');
+    Route::get('/opnames/{opname}/edit', StockOpnameEdit::class)->name('opnames.edit');
     Route::get('/reports', ReportIndex::class)->name('reports.index');
 
     Route::get('/export/stock', [ExportController::class, 'exportStock'])->name('export.stock');

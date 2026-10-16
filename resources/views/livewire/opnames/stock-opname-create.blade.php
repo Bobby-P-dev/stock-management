@@ -78,116 +78,122 @@
                 </button>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead>
-                        <tr class="text-slate-500 bg-slate-50/80 border-b border-slate-200 uppercase tracking-wider text-[11px]">
-                            <th class="py-3 px-3 font-semibold w-10 text-center">No</th>
-                            <th class="py-3 px-3 font-semibold min-w-[220px]">Pilih Produk Barang *</th>
-                            <th class="py-3 px-3 font-semibold text-center w-28">Stok Sistem</th>
-                            <th class="py-3 px-3 font-semibold text-center w-32">Stok Fisik *</th>
-                            <th class="py-3 px-3 font-semibold text-center w-28">Selisih</th>
-                            <th class="py-3 px-3 font-semibold min-w-[160px]">Alasan Selisih</th>
-                            <th class="py-3 px-3 font-semibold min-w-[180px]">Catatan Khusus</th>
-                            <th class="py-3 px-3 font-semibold w-12 text-center">Hapus</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        @foreach($items as $index => $item)
-                        <tr class="hover:bg-slate-50/50 transition">
-                            <td class="py-3 px-3 text-center text-slate-400 font-mono">
+            <div class="space-y-3">
+                @foreach($items as $index => $item)
+                <div class="p-4 rounded-xl bg-slate-50/80 border border-slate-200 space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-200/70">
+                        <span class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            <span class="w-5 h-5 rounded-full bg-indigo-100 text-indigo-700 text-[10px] font-bold flex items-center justify-center">
                                 {{ $index + 1 }}
-                            </td>
+                            </span>
+                            Pemeriksaan Barang #{{ $index + 1 }}
+                        </span>
 
-                            <td class="py-3 px-3">
-                                <x-searchable-select
-                                    wire:key="stock-opname-item-{{ $index }}"
-                                    wire:model.live="items.{{ $index }}.product_id"
-                                    :options="$products"
-                                    placeholder="-- Pilih Barang --"
-                                    searchPlaceholder="Cari nama atau SKU..."
-                                />
-                                @error("items.{$index}.product_id")
-                                    <span class="text-[10px] text-rose-600 mt-0.5 block">{{ $message }}</span>
-                                @enderror
-                            </td>
+                        @if(count($items) > 1)
+                        <button
+                            wire:click="removeItem({{ $index }})"
+                            type="button"
+                            class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-600 hover:text-rose-700 p-1 transition cursor-pointer"
+                            title="Hapus baris ini"
+                        >
+                            <x-heroicon-o-trash class="w-3.5 h-3.5" />
+                            Hapus Baris
+                        </button>
+                        @endif
+                    </div>
 
-                            <td class="py-3 px-3 text-center font-bold text-slate-700 bg-slate-50/50">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-start">
+                        <!-- Pilih Produk (Col 5) -->
+                        <div class="lg:col-span-5">
+                            <label class="block text-[10px] font-semibold text-slate-600 mb-1">Pilih Produk Barang *</label>
+                            <x-searchable-select
+                                wire:key="stock-opname-item-{{ $index }}"
+                                wire:model.live="items.{{ $index }}.product_id"
+                                :options="$products"
+                                placeholder="-- Pilih Barang --"
+                                searchPlaceholder="Cari nama atau SKU..."
+                            />
+                            @error("items.{$index}.product_id")
+                                <span class="text-[10px] text-rose-600 mt-0.5 block">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <!-- Stok Sistem (Col 2) -->
+                        <div class="lg:col-span-2">
+                            <label class="block text-[10px] font-semibold text-slate-600 mb-1 text-center">Stok Sistem</label>
+                            <div class="px-3 py-2 rounded-lg bg-slate-100 border border-slate-200 text-center font-bold text-slate-700 text-xs flex items-center justify-center h-[38px]">
                                 {{ $item['system_stock'] }}
-                            </td>
+                            </div>
+                        </div>
 
-                            <td class="py-3 px-3 text-center">
-                                <input
-                                    wire:model.live.debounce.300ms="items.{{ $index }}.physical_stock"
-                                    type="number"
-                                    min="0"
-                                    required
-                                    class="w-24 text-center px-2 py-1.5 rounded-lg bg-white border border-slate-300 font-bold text-slate-900 text-xs focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
-                                >
-                                @error("items.{$index}.physical_stock")
-                                    <span class="text-[10px] text-rose-600 mt-0.5 block">{{ $message }}</span>
-                                @enderror
-                            </td>
+                        <!-- Stok Fisik (Col 2) -->
+                        <div class="lg:col-span-2">
+                            <label class="block text-[10px] font-semibold text-slate-600 mb-1 text-center">Stok Fisik *</label>
+                            <input
+                                wire:model.live.debounce.300ms="items.{{ $index }}.physical_stock"
+                                type="number"
+                                min="0"
+                                required
+                                class="w-full text-center px-2 py-2 rounded-lg bg-white border border-slate-300 font-bold text-slate-900 text-xs focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition h-[38px]"
+                            >
+                            @error("items.{$index}.physical_stock")
+                                <span class="text-[10px] text-rose-600 mt-0.5 block text-center">{{ $message }}</span>
+                            @enderror
+                        </div>
 
-                            <td class="py-3 px-3 text-center">
+                        <!-- Selisih (Col 3) -->
+                        <div class="lg:col-span-3">
+                            <label class="block text-[10px] font-semibold text-slate-600 mb-1 text-center">Selisih</label>
+                            <div class="h-[38px] flex items-center justify-center">
                                 @php $diff = $item['difference'] ?? 0; @endphp
                                 @if($diff === 0)
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                                     0 (Cocok)
                                 </span>
                                 @elseif($diff < 0)
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
                                     {{ $diff }} (Kurang)
                                 </span>
                                 @else
-                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
                                     +{{ $diff }} (Lebih)
                                 </span>
                                 @endif
-                            </td>
+                            </div>
+                        </div>
 
-                            <td class="py-3 px-3">
-                                <x-searchable-select
-                                    wire:key="stock-opname-reason-{{ $index }}"
-                                    wire:model="items.{{ $index }}.reason"
-                                    :options="[
-                                        ['value' => 'SESUAI', 'label' => 'Stok Sesuai (Fisik Cocok)'],
-                                        ['value' => 'RUSAK', 'label' => 'Barang Rusak / Cacat'],
-                                        ['value' => 'HILANG', 'label' => 'Barang Hilang / Kurang'],
-                                        ['value' => 'KADALUWARSA', 'label' => 'Kadaluwarsa / Expired'],
-                                        ['value' => 'SELISIH_HITUNG', 'label' => 'Koreksi Salah Hitung'],
-                                        ['value' => 'LAINNYA', 'label' => 'Alasan Lainnya']
-                                    ]"
-                                    placeholder="Pilih Alasan"
-                                    searchPlaceholder="Cari alasan..."
-                                />
-                            </td>
+                        <!-- Alasan Selisih (Col 5) -->
+                        <div class="lg:col-span-5">
+                            <label class="block text-[10px] font-semibold text-slate-600 mb-1">Alasan Penyesuaian</label>
+                            <x-searchable-select
+                                wire:key="stock-opname-reason-{{ $index }}"
+                                wire:model="items.{{ $index }}.reason"
+                                :options="[
+                                    ['value' => 'SESUAI', 'label' => 'Stok Sesuai (Fisik Cocok)'],
+                                    ['value' => 'RUSAK', 'label' => 'Barang Rusak / Cacat'],
+                                    ['value' => 'HILANG', 'label' => 'Barang Hilang / Kurang'],
+                                    ['value' => 'KADALUWARSA', 'label' => 'Kadaluwarsa / Expired'],
+                                    ['value' => 'SELISIH_HITUNG', 'label' => 'Koreksi Salah Hitung'],
+                                    ['value' => 'LAINNYA', 'label' => 'Alasan Lainnya']
+                                ]"
+                                placeholder="Pilih Alasan"
+                                searchPlaceholder="Cari alasan..."
+                            />
+                        </div>
 
-                            <td class="py-3 px-3">
-                                <input
-                                    wire:model="items.{{ $index }}.item_notes"
-                                    type="text"
-                                    placeholder="Keterangan..."
-                                    class="w-full px-2 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-900 text-xs placeholder-slate-400 focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
-                                >
-                            </td>
-
-                            <td class="py-3 px-3 text-center">
-                                @if(count($items) > 1)
-                                <button
-                                    wire:click="removeItem({{ $index }})"
-                                    type="button"
-                                    class="text-slate-400 hover:text-rose-600 transition p-1 cursor-pointer"
-                                    title="Hapus baris"
-                                >
-                                    <x-heroicon-o-trash class="w-4 h-4" />
-                                </button>
-                                @endif
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                        <!-- Catatan Khusus (Col 7) -->
+                        <div class="lg:col-span-7">
+                            <label class="block text-[10px] font-semibold text-slate-600 mb-1">Catatan Khusus (Opsional)</label>
+                            <input
+                                wire:model="items.{{ $index }}.item_notes"
+                                type="text"
+                                placeholder="Keterangan kondisi fisik barang..."
+                                class="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 text-xs focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
+                            >
+                        </div>
+                    </div>
+                </div>
+                @endforeach
             </div>
 
             <div class="pt-3 border-t border-slate-100 flex items-center justify-between">

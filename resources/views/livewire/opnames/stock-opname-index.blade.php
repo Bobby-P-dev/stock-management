@@ -96,13 +96,36 @@
                             <div class="text-[10px] capitalize text-slate-400">{{ $op->creator->role }}</div>
                         </td>
                         <td class="py-3.5 px-4 text-right">
-                            <a
-                                href="{{ route('opnames.show', $op->id) }}"
-                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold border border-indigo-200/60 transition"
-                            >
-                                <x-heroicon-o-eye class="w-3.5 h-3.5" />
-                                Rincian
-                            </a>
+                            <div class="inline-flex items-center gap-1.5">
+                                <a
+                                    href="{{ route('opnames.show', $op->id) }}"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold border border-indigo-200/60 transition"
+                                    title="Lihat Berita Acara"
+                                >
+                                    <x-heroicon-o-eye class="w-3.5 h-3.5" />
+                                    Rincian
+                                </a>
+
+                                <a
+                                    href="{{ route('opnames.edit', $op->id) }}"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold border border-amber-200/60 transition"
+                                    title="Edit Dokumen Opname"
+                                >
+                                    <x-heroicon-o-pencil-square class="w-3.5 h-3.5" />
+                                    Edit
+                                </a>
+
+                                <button
+                                    wire:click="delete({{ $op->id }})"
+                                    wire:confirm="Yakin ingin menghapus dokumen Stock Opname {{ $op->opname_no }}? Penyesuaian stok barang akan dibatalkan."
+                                    type="button"
+                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold border border-rose-200/60 transition cursor-pointer"
+                                    title="Hapus Dokumen Opname"
+                                >
+                                    <x-heroicon-o-trash class="w-3.5 h-3.5" />
+                                    Hapus
+                                </button>
+                            </div>
                         </td>
                     </tr>
                     @empty
