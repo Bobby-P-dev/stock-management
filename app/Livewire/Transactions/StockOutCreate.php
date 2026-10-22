@@ -54,14 +54,21 @@ class StockOutCreate extends Component
             'items.*.product_id' => ['required', 'exists:products,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
         ], [
-            'recipient.required' => 'Penerima / divisi tujuan barang keluar wajib diisi.',
+            'recipient.required' => 'Nama penerima barang keluar wajib diisi.',
             'items.*.product_id.required' => 'Barang wajib dipilih.',
             'items.*.quantity.min' => 'Kuantitas minimal 1 unit.',
         ]);
 
         $productIds = array_column($this->items, 'product_id');
         if (count($productIds) !== count(array_unique($productIds))) {
-            $this->addError('items', 'Terdapat barang duplikat di formulir. Harap gabungkan kuantitas untuk barang yang sama.');
+            $errorMsg = 'Terdapat barang duplikat di formulir. Harap gabungkan kuantitas untuk barang yang sama.';
+            $this->addError('items', $errorMsg);
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Barang Duplikat',
+                'text' => $errorMsg,
+                'toast' => false,
+            ]);
 
             return null;
         }
@@ -69,7 +76,14 @@ class StockOutCreate extends Component
         foreach ($this->items as $idx => $item) {
             $product = Product::find($item['product_id']);
             if ($product && $product->current_stock < (int) $item['quantity']) {
-                $this->addError("items.{$idx}.quantity", "Stok '{$product->name}' tidak cukup! (Tersedia: {$product->current_stock}, Diminta: {$item['quantity']})");
+                $errorMsg = "Stok '{$product->name}' tidak cukup! (Tersedia: {$product->current_stock}, Diminta: {$item['quantity']})";
+                $this->addError("items.{$idx}.quantity", $errorMsg);
+                $this->dispatch('swal', [
+                    'icon' => 'error',
+                    'title' => 'Stok Tidak Mencukupi',
+                    'text' => $errorMsg,
+                    'toast' => false,
+                ]);
 
                 return null;
             }

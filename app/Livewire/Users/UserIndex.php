@@ -32,6 +32,25 @@ class UserIndex extends Component
 
     public bool $is_active = true;
 
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function closeModal(): void
+    {
+        $this->showModal = false;
+        $this->resetValidation();
+        $this->reset(['editingUserId', 'name', 'email', 'password']);
+    }
+
+    public function updatedShowModal(bool $value): void
+    {
+        if (! $value) {
+            $this->resetValidation();
+        }
+    }
+
     protected function rules(): array
     {
         $passwordRule = $this->editingUserId ? ['nullable', 'string', 'min:6'] : ['required', 'string', 'min:6'];
@@ -55,6 +74,7 @@ class UserIndex extends Component
 
     public function create(): void
     {
+        $this->resetValidation();
         $this->reset(['editingUserId', 'name', 'email', 'password']);
         $this->role = 'petugas';
         $this->is_active = true;
@@ -63,12 +83,13 @@ class UserIndex extends Component
 
     public function edit(User $user): void
     {
+        $this->resetValidation();
         $this->editingUserId = $user->id;
         $this->name = $user->name;
         $this->email = $user->email;
         $this->password = '';
         $this->role = $user->role;
-        $this->is_active = $user->is_active;
+        $this->is_active = (bool) $user->is_active;
         $this->showModal = true;
     }
 
@@ -88,7 +109,14 @@ class UserIndex extends Component
                 $data['password'] = Hash::make($validated['password']);
             }
             $user->update($data);
-            session()->flash('success', "Data pengguna '{$user->name}' berhasil diperbarui.");
+            $message = "Data pengguna '{$user->name}' berhasil diperbarui.";
+            session()->flash('success', $message);
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Pengguna Diperbarui',
+                'text' => $message,
+                'toast' => true,
+            ]);
         } else {
             $user = User::create([
                 'name' => $validated['name'],
@@ -97,23 +125,89 @@ class UserIndex extends Component
                 'role' => $validated['role'],
                 'is_active' => $validated['is_active'],
             ]);
-            session()->flash('success', "Pengguna baru '{$user->name}' berhasil ditambahkan.");
+            $message = "Pengguna baru '{$user->name}' berhasil ditambahkan.";
+            session()->flash('success', $message);
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Pengguna Ditambahkan',
+                'text' => $message,
+                'toast' => true,
+            ]);
         }
 
         $this->showModal = false;
+        $this->resetValidation();
         $this->reset(['editingUserId', 'name', 'email', 'password']);
     }
 
     public function toggleActive(User $user): void
     {
         if ($user->id === auth()->id()) {
-            session()->flash('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
+            $errorMsg = 'Anda tidak dapat menonaktifkan akun Anda sendiri.';
+            session()->flash('error', $errorMsg);
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Aksi Ditolak',
+                'text' => $errorMsg,
+                'toast' => false,
+            ]);
 
             return;
         }
 
         $user->update(['is_active' => ! $user->is_active]);
-        session()->flash('success', "Status akun '{$user->name}' berhasil diubah.");
+        $statusLabel = $user->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        $message = "Status akun '{$user->name}' berhasil {$statusLabel}.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Status Akun Diubah',
+            'text' => $message,
+            'toast' => true,
+        ]);
+    }
+
+    public function delete(int $id): void
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->id === auth()->id()) {
+            $errorMsg = 'Anda tidak dapat menghapus akun yang sedang Anda gunakan.';
+            session()->flash('error', $errorMsg);
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Aksi Ditolak',
+                'text' => $errorMsg,
+                'toast' => false,
+            ]);
+
+            return;
+        }
+
+        if ($user->stockTransactions()->exists() || $user->stockOpnames()->exists()) {
+            $errorMsg = "Pengguna '{$user->name}' sudah memiliki riwayat pencatatan transaksi atau stock opname. Gunakan tombol Nonaktifkan agar log audit tetap terjaga.";
+            session()->flash('error', $errorMsg);
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Tidak Dapat Dihapus',
+                'text' => $errorMsg,
+                'toast' => false,
+            ]);
+
+            return;
+        }
+
+        $userName = $user->name;
+        $user->delete();
+
+        $message = "Akun pengguna '{$userName}' berhasil dihapus secara permanen.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Pengguna Dihapus',
+            'text' => $message,
+            'toast' => true,
+        ]);
     }
 
     public function render()

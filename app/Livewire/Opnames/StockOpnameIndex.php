@@ -42,7 +42,14 @@ class StockOpnameIndex extends Component
         $opnameNo = $opname->opname_no;
         $stockService->deleteStockOpname($opname);
 
-        session()->flash('success', "Dokumen Stock Opname {$opnameNo} berhasil dihapus dan penyesuaian stok telah dibatalkan.");
+        $message = "Dokumen Stock Opname {$opnameNo} berhasil dihapus dan penyesuaian stok telah dibatalkan.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Stock Opname Dihapus',
+            'text' => $message,
+            'toast' => true,
+        ]);
     }
 
     public function render()

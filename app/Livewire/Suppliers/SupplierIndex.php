@@ -53,9 +53,15 @@ class SupplierIndex extends Component
         return $rules;
     }
 
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
     public function create(): void
     {
-        $this->reset(['editingSupplierId', 'code', 'name', 'phone', 'email', 'address']);
+        $this->resetValidation();
+        $this->reset(['editingSupplierId', 'code', 'name', 'phone', 'email', 'address', 'is_active']);
         $this->is_active = true;
 
         $count = Supplier::count() + 1;
@@ -66,6 +72,7 @@ class SupplierIndex extends Component
 
     public function edit(Supplier $supplier): void
     {
+        $this->resetValidation();
         $this->editingSupplierId = $supplier->id;
         $this->code = $supplier->code;
         $this->name = $supplier->name;
@@ -76,6 +83,19 @@ class SupplierIndex extends Component
         $this->showModal = true;
     }
 
+    public function closeModal(): void
+    {
+        $this->showModal = false;
+        $this->resetValidation();
+    }
+
+    public function updatedShowModal(bool $value): void
+    {
+        if (! $value) {
+            $this->resetValidation();
+        }
+    }
+
     public function save(): void
     {
         $validated = $this->validate();
@@ -83,20 +103,74 @@ class SupplierIndex extends Component
         if ($this->editingSupplierId) {
             $supplier = Supplier::findOrFail($this->editingSupplierId);
             $supplier->update($validated);
-            session()->flash('success', "Data supplier '{$supplier->name}' berhasil diperbarui.");
+            $message = "Data supplier '{$supplier->name}' berhasil diperbarui.";
+            session()->flash('success', $message);
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Supplier Diperbarui',
+                'text' => $message,
+                'toast' => true,
+            ]);
         } else {
             $supplier = Supplier::create($validated);
-            session()->flash('success', "Supplier baru '{$supplier->name}' berhasil ditambahkan.");
+            $message = "Supplier baru '{$supplier->name}' berhasil ditambahkan.";
+            session()->flash('success', $message);
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Supplier Ditambahkan',
+                'text' => $message,
+                'toast' => true,
+            ]);
         }
 
         $this->showModal = false;
-        $this->reset(['editingSupplierId', 'code', 'name', 'phone', 'email', 'address']);
+        $this->reset(['editingSupplierId', 'code', 'name', 'phone', 'email', 'address', 'is_active']);
+        $this->is_active = true;
+        $this->resetValidation();
     }
 
     public function toggleActive(Supplier $supplier): void
     {
         $supplier->update(['is_active' => ! $supplier->is_active]);
-        session()->flash('success', "Status supplier '{$supplier->name}' berhasil diubah.");
+        $statusLabel = $supplier->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        $message = "Status supplier '{$supplier->name}' berhasil {$statusLabel}.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Status Supplier Diubah',
+            'text' => $message,
+            'toast' => true,
+        ]);
+    }
+
+    public function delete(int $id): void
+    {
+        $supplier = Supplier::findOrFail($id);
+
+        if ($supplier->stockTransactions()->exists()) {
+            $errorMsg = "Supplier '{$supplier->name}' sudah tercatat pada riwayat faktur barang masuk. Gunakan tombol Nonaktifkan agar histori transaksi tetap utuh.";
+            session()->flash('error', $errorMsg);
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Tidak Dapat Dihapus',
+                'text' => $errorMsg,
+                'toast' => false,
+            ]);
+
+            return;
+        }
+
+        $supplierName = $supplier->name;
+        $supplier->delete();
+
+        $message = "Supplier '{$supplierName}' berhasil dihapus secara permanen.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Supplier Dihapus',
+            'text' => $message,
+            'toast' => true,
+        ]);
     }
 
     public function render()

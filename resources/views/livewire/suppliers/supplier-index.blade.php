@@ -1,207 +1,312 @@
-<div class="space-y-6 max-w-6xl mx-auto">
+<div class="space-y-5 min-w-0">
+    {{-- Page Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <h1 class="text-xl font-bold text-slate-900 tracking-tight">Mitra Supplier</h1>
-            <p class="text-xs text-slate-500 mt-1">Daftar vendor penyedia barang masuk (Stock In) dan kontak penanggung jawab.</p>
+        <div class="min-w-0">
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Mitra Supplier</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Daftar vendor penyedia barang masuk (Stock In) dan kontak penanggung jawab.</p>
         </div>
 
-        <button
+        <x-ui.button
             wire:click="create"
-            type="button"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition cursor-pointer self-start sm:self-auto"
+            variant="primary"
+            size="md"
+            class="self-start sm:self-auto"
         >
-            <x-heroicon-o-plus class="w-4 h-4" />
-            Tambah Supplier
-        </button>
+            <x-slot:icon>
+                <x-heroicon-o-plus class="w-4 h-4" />
+            </x-slot:icon>
+            <span>Tambah Supplier</span>
+        </x-ui.button>
     </div>
 
-    @if(session('success'))
-    <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 shadow-sm">
-        <x-heroicon-s-check-circle class="w-4 h-4 text-emerald-600 shrink-0" />
-        <span>{{ session('success') }}</span>
-    </div>
-    @endif
-
-    <div class="max-w-md">
-        <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                <x-heroicon-o-magnifying-glass class="w-4 h-4" />
-            </div>
-            <input
+    {{-- Search Toolbar --}}
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-2xs">
+        <div class="w-full sm:max-w-md">
+            <x-ui.input
+                id="supplier-search"
                 wire:model.live.debounce.300ms="search"
-                type="text"
                 placeholder="Cari kode, nama, atau no telepon supplier..."
-                class="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-900 text-xs placeholder-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 shadow-sm transition"
+                :showClear="$search !== ''"
+                clearAction="$set('search', '')"
             >
+                <x-slot:icon>
+                    <x-heroicon-o-magnifying-glass class="w-4 h-4" />
+                </x-slot:icon>
+            </x-ui.input>
         </div>
     </div>
 
-    <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-                <thead>
-                    <tr class="text-slate-500 bg-slate-50/70 border-b border-slate-100">
-                        <th class="py-3 px-4 font-semibold">Kode</th>
-                        <th class="py-3 px-4 font-semibold">Nama Supplier</th>
-                        <th class="py-3 px-4 font-semibold">Kontak</th>
-                        <th class="py-3 px-4 font-semibold">Alamat</th>
-                        <th class="py-3 px-4 font-semibold text-center">Faktur Masuk</th>
-                        <th class="py-3 px-4 font-semibold text-center">Status</th>
-                        <th class="py-3 px-4 font-semibold text-right">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($suppliers as $supplier)
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-4 font-mono font-bold text-indigo-600">{{ $supplier->code }}</td>
-                        <td class="py-3 px-4 font-semibold text-slate-900">{{ $supplier->name }}</td>
-                        <td class="py-3 px-4 text-slate-700">
-                            <div>{{ $supplier->phone ?: '-' }}</div>
-                            <div class="text-[11px] text-slate-500">{{ $supplier->email ?: '' }}</div>
-                        </td>
-                        <td class="py-3 px-4 text-slate-500 max-w-xs truncate">{{ $supplier->address ?: '-' }}</td>
-                        <td class="py-3 px-4 text-center font-bold text-slate-700">
-                            {{ $supplier->stock_transactions_count }} transaksi
-                        </td>
-                        <td class="py-3 px-4 text-center">
-                            @if($supplier->is_active)
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                                Aktif
-                            </span>
-                            @else
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
-                                Non-aktif
-                            </span>
+    {{-- Suppliers Table --}}
+    <x-ui.table loadingTarget="search,gotoPage,previousPage,nextPage,delete,toggleActive">
+        <x-slot:head>
+            <x-ui.th class="w-32 whitespace-nowrap">Kode</x-ui.th>
+            <x-ui.th class="min-w-[180px]">Nama Supplier</x-ui.th>
+            <x-ui.th class="min-w-[170px]">Kontak</x-ui.th>
+            <x-ui.th class="min-w-[200px]">Alamat</x-ui.th>
+            <x-ui.th align="right" class="w-36 whitespace-nowrap">Faktur Masuk</x-ui.th>
+            <x-ui.th align="center" class="w-32 whitespace-nowrap">Status</x-ui.th>
+            <x-ui.th align="right" class="w-36 whitespace-nowrap">Aksi</x-ui.th>
+        </x-slot:head>
+
+        @forelse ($suppliers as $supplier)
+            <x-ui.tr wire:key="supplier-row-{{ $supplier->id }}">
+                {{-- Kode --}}
+                <x-ui.td class="whitespace-nowrap">
+                    <x-ui.badge variant="mono" size="code">
+                        {{ $supplier->code }}
+                    </x-ui.badge>
+                </x-ui.td>
+
+                {{-- Nama Supplier --}}
+                <x-ui.td class="font-semibold text-[13px] text-slate-900">
+                    {{ $supplier->name }}
+                </x-ui.td>
+
+                {{-- Kontak --}}
+                <x-ui.td>
+                    @if ($supplier->phone || $supplier->email)
+                        <div class="space-y-0.5 leading-snug">
+                            @if ($supplier->phone)
+                                <div class="text-xs font-medium text-slate-700 tabular-nums">{{ $supplier->phone }}</div>
                             @endif
-                        </td>
-                        <td class="py-3 px-4 text-right space-x-1.5 whitespace-nowrap">
-                            <button
-                                wire:click="edit({{ $supplier->id }})"
-                                type="button"
-                                class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 font-semibold text-[11px] transition cursor-pointer"
+                            @if ($supplier->email)
+                                <div class="text-[11px] text-slate-500 truncate max-w-[200px]">{{ $supplier->email }}</div>
+                            @endif
+                        </div>
+                    @else
+                        <span class="text-slate-400">-</span>
+                    @endif
+                </x-ui.td>
+
+                {{-- Alamat --}}
+                <x-ui.td class="text-slate-600 text-xs leading-relaxed max-w-xs whitespace-normal break-words">
+                    {{ $supplier->address ?: '-' }}
+                </x-ui.td>
+
+                {{-- Faktur Masuk --}}
+                <x-ui.td align="right" :numeric="true">
+                    <span class="font-bold text-slate-900">{{ number_format($supplier->stock_transactions_count, 0, ',', '.') }}</span>
+                    <span class="text-slate-500 ml-0.5">transaksi</span>
+                </x-ui.td>
+
+                {{-- Status --}}
+                <x-ui.td align="center" class="whitespace-nowrap">
+                    @if ($supplier->is_active)
+                        <x-ui.badge variant="success">Aktif</x-ui.badge>
+                    @else
+                        <x-ui.badge variant="neutral">Non-aktif</x-ui.badge>
+                    @endif
+                </x-ui.td>
+
+                {{-- Row Actions --}}
+                <x-ui.td align="right" class="whitespace-nowrap">
+                    <div class="inline-flex items-center justify-end gap-1.5">
+                        <x-ui.button
+                            wire:click="edit({{ $supplier->id }})"
+                            variant="secondary"
+                            size="xs"
+                            title="Edit Supplier"
+                        >
+                            <x-slot:icon>
+                                <x-heroicon-o-pencil-square class="w-3.5 h-3.5" />
+                            </x-slot:icon>
+                            <span>Edit</span>
+                        </x-ui.button>
+
+                        <x-ui.dropdown label="Opsi lainnya">
+                            <x-ui.dropdown-item
+                                @click="
+                                    closeMenu();
+                                    window.SwalConfirm({
+                                        title: '{{ $supplier->is_active ? 'Nonaktifkan Supplier?' : 'Aktifkan Supplier?' }}',
+                                        text: '{{ $supplier->is_active ? 'Supplier ' . addslashes($supplier->name) . ' tidak akan muncul pada form Barang Masuk saat dinonaktifkan.' : 'Supplier ' . addslashes($supplier->name) . ' akan kembali aktif.' }}',
+                                        icon: 'question',
+                                        confirmText: '{{ $supplier->is_active ? 'Ya, Nonaktifkan' : 'Ya, Aktifkan' }}',
+                                        variant: '{{ $supplier->is_active ? 'amber' : 'emerald' }}',
+                                        onConfirm: () => $wire.toggleActive({{ $supplier->id }})
+                                    });
+                                "
                             >
-                                <x-heroicon-o-pencil-square class="w-3.5 h-3.5 text-indigo-600" />
-                                Edit
-                            </button>
-                            <button
-                                wire:click="toggleActive({{ $supplier->id }})"
-                                type="button"
-                                class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-slate-600 bg-slate-100 hover:bg-slate-200 font-medium text-[11px] transition cursor-pointer"
-                            >
+                                <x-slot:icon>
+                                    @if ($supplier->is_active)
+                                        <x-heroicon-o-no-symbol class="w-4 h-4 text-amber-600" />
+                                    @else
+                                        <x-heroicon-o-check-circle class="w-4 h-4 text-emerald-600" />
+                                    @endif
+                                </x-slot:icon>
                                 {{ $supplier->is_active ? 'Nonaktifkan' : 'Aktifkan' }}
-                            </button>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="7" class="py-8 text-center text-slate-400">
-                            Tidak ada supplier ditemukan.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                            </x-ui.dropdown-item>
 
-        <div class="p-4 border-t border-slate-100">
-            {{ $suppliers->links() }}
-        </div>
-    </div>
+                            <div class="my-0.5 border-t border-slate-100"></div>
 
-    @if($showModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-        <div class="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                <h3 class="text-base font-bold text-slate-900">
-                    {{ $editingSupplierId ? 'Edit Supplier' : 'Tambah Supplier Baru' }}
-                </h3>
-                <button wire:click="$set('showModal', false)" type="button" class="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100">
-                    <x-heroicon-o-x-mark class="w-5 h-5" />
-                </button>
+                            <x-ui.dropdown-item
+                                variant="danger"
+                                @click="
+                                    closeMenu();
+                                    window.SwalConfirm({
+                                        title: 'Hapus Supplier?',
+                                        text: 'Data supplier {{ addslashes($supplier->name) }} ({{ addslashes($supplier->code) }}) akan dihapus permanen jika belum memiliki riwayat transaksi.',
+                                        icon: 'warning',
+                                        confirmText: 'Ya, Hapus',
+                                        variant: 'rose',
+                                        onConfirm: () => $wire.delete({{ $supplier->id }})
+                                    });
+                                "
+                            >
+                                <x-slot:icon>
+                                    <x-heroicon-o-trash class="w-4 h-4 text-rose-600" />
+                                </x-slot:icon>
+                                Hapus
+                            </x-ui.dropdown-item>
+                        </x-ui.dropdown>
+                    </div>
+                </x-ui.td>
+            </x-ui.tr>
+        @empty
+            <tr>
+                <td colspan="7">
+                    @if ($search !== '')
+                        <x-ui.empty-state
+                            title="Tidak Ada Supplier yang Cocok"
+                            description="Tidak ditemukan mitra supplier yang sesuai dengan kata kunci pencarian Anda."
+                        >
+                            <x-slot:icon>
+                                <x-heroicon-o-magnifying-glass class="w-5 h-5" />
+                            </x-slot:icon>
+
+                            <x-ui.button
+                                variant="outline"
+                                size="xs"
+                                wire:click="$set('search', '')"
+                                class="text-blue-600 hover:text-blue-700"
+                            >
+                                <x-slot:icon>
+                                    <x-heroicon-o-arrow-path class="w-3.5 h-3.5" />
+                                </x-slot:icon>
+                                <span>Reset Pencarian</span>
+                            </x-ui.button>
+                        </x-ui.empty-state>
+                    @else
+                        <x-ui.empty-state
+                            title="Tidak ada supplier ditemukan."
+                            description="Belum ada data mitra supplier yang terdaftar pada sistem inventaris."
+                        >
+                            <x-slot:icon>
+                                <x-heroicon-o-truck class="w-5 h-5" />
+                            </x-slot:icon>
+                        </x-ui.empty-state>
+                    @endif
+                </td>
+            </tr>
+        @endforelse
+
+        @if ($suppliers->hasPages())
+            <x-slot:footer>
+                {{ $suppliers->links() }}
+            </x-slot:footer>
+        @endif
+    </x-ui.table>
+
+    {{-- Add / Edit Supplier Modal --}}
+    <x-ui.modal
+        :open="$showModal"
+        id="supplier-form-modal"
+        :title="$editingSupplierId ? 'Edit Supplier' : 'Tambah Supplier Baru'"
+        description="Lengkapi informasi mitra pemasok dan kontak penanggung jawab untuk pengadaan barang masuk."
+        maxWidth="lg"
+        closeAction="closeModal"
+        formAction="save"
+        loadingTarget="save"
+        wire:key="supplier-modal-{{ $editingSupplierId ?? 'create' }}"
+    >
+        <div class="space-y-4 sm:space-y-5">
+            {{-- Row 1: Supplier Identity --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-ui.input
+                    id="sup_code"
+                    name="code"
+                    label="Kode Supplier"
+                    wire:model="code"
+                    type="text"
+                    placeholder="Contoh: SUP-001"
+                    class="uppercase font-mono"
+                    required
+                />
+
+                <x-ui.input
+                    id="sup_name"
+                    name="name"
+                    label="Nama Supplier"
+                    wire:model="name"
+                    type="text"
+                    placeholder="Contoh: PT Sinar Abadi"
+                    required
+                />
             </div>
 
-            <form wire:submit="save" class="space-y-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kode Supplier *</label>
-                        <input
-                            wire:model="code"
-                            type="text"
-                            placeholder="Contoh: SUP-001"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 uppercase font-mono"
-                        >
-                        @error('code') <span class="text-[11px] text-rose-600">{{ $message }}</span> @enderror
-                    </div>
+            {{-- Row 2: Contact Information --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-ui.input
+                    id="sup_phone"
+                    name="phone"
+                    label="No. Telepon / WhatsApp"
+                    wire:model="phone"
+                    type="text"
+                    placeholder="08123456789"
+                />
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Supplier *</label>
-                        <input
-                            wire:model="name"
-                            type="text"
-                            placeholder="Contoh: PT Sinar Abadi"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
-                        >
-                        @error('name') <span class="text-[11px] text-rose-600">{{ $message }}</span> @enderror
-                    </div>
-                </div>
+                <x-ui.input
+                    id="sup_email"
+                    name="email"
+                    label="Alamat Email"
+                    wire:model="email"
+                    type="email"
+                    placeholder="info@perusahaan.com"
+                />
+            </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">No. Telepon / WhatsApp</label>
-                        <input
-                            wire:model="phone"
-                            type="text"
-                            placeholder="08123456789"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
-                        >
-                        @error('phone') <span class="text-[11px] text-rose-600">{{ $message }}</span> @enderror
-                    </div>
+            {{-- Row 3: Address Information --}}
+            <x-ui.textarea
+                id="sup_address"
+                name="address"
+                label="Alamat Kantor / Gudang"
+                wire:model="address"
+                rows="3"
+                placeholder="Alamat lengkap supplier..."
+            />
 
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-700 mb-1">Alamat Email</label>
-                        <input
-                            wire:model="email"
-                            type="email"
-                            placeholder="info@perusahaan.com"
-                            class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
-                        >
-                        @error('email') <span class="text-[11px] text-rose-600">{{ $message }}</span> @enderror
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-700 mb-1">Alamat Kantor / Gudang</label>
-                    <textarea
-                        wire:model="address"
-                        rows="2"
-                        placeholder="Alamat lengkap supplier..."
-                        class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600"
-                    ></textarea>
-                    @error('address') <span class="text-[11px] text-rose-600">{{ $message }}</span> @enderror
-                </div>
-
-                <div class="flex items-center gap-2 pt-2">
-                    <input wire:model="is_active" type="checkbox" id="sup_is_active" class="rounded border-slate-300 text-indigo-600">
-                    <label for="sup_is_active" class="text-xs text-slate-700 cursor-pointer">Status Supplier Aktif</label>
-                </div>
-
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
-                    <button
-                        wire:click="$set('showModal', false)"
-                        type="button"
-                        class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold"
-                    >
-                        Batal
-                    </button>
-                    <button
-                        type="submit"
-                        class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm"
-                    >
-                        Simpan
-                    </button>
-                </div>
-            </form>
+            {{-- Row 4: Active Status --}}
+            <div class="pt-1">
+                <x-ui.checkbox
+                    id="sup_is_active"
+                    name="is_active"
+                    wire:model="is_active"
+                    label="Status Supplier Aktif"
+                    description="Supplier aktif dapat dipilih pada pencatatan faktur transaksi barang masuk (Stock In)."
+                    :card="true"
+                />
+            </div>
         </div>
-    </div>
-    @endif
+
+        <x-slot:footer>
+            <x-ui.button
+                variant="outline"
+                size="md"
+                wire:click="closeModal"
+                wire:loading.attr="disabled"
+                wire:target="save"
+            >
+                Batal
+            </x-ui.button>
+
+            <x-ui.button
+                type="submit"
+                variant="primary"
+                size="md"
+                loadingTarget="save"
+            >
+                {{ $editingSupplierId ? 'Simpan Perubahan' : 'Simpan Supplier' }}
+            </x-ui.button>
+        </x-slot:footer>
+    </x-ui.modal>
 </div>

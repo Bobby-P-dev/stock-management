@@ -76,6 +76,7 @@ class ProductIndex extends Component
 
     public function create(): void
     {
+        $this->resetValidation();
         $this->reset(['editingProductId', 'sku', 'name', 'category_id', 'unit_id', 'minimum_stock', 'is_active']);
         $this->is_active = true;
         $this->minimum_stock = 5;
@@ -84,6 +85,7 @@ class ProductIndex extends Component
 
     public function edit(Product $product): void
     {
+        $this->resetValidation();
         $this->editingProductId = $product->id;
         $this->sku = $product->sku;
         $this->name = $product->name;
@@ -94,6 +96,19 @@ class ProductIndex extends Component
         $this->showModal = true;
     }
 
+    public function closeModal(): void
+    {
+        $this->showModal = false;
+        $this->resetValidation();
+    }
+
+    public function updatedShowModal(bool $value): void
+    {
+        if (! $value) {
+            $this->resetValidation();
+        }
+    }
+
     public function save(): void
     {
         $validated = $this->validate();
@@ -101,21 +116,75 @@ class ProductIndex extends Component
         if ($this->editingProductId) {
             $product = Product::findOrFail($this->editingProductId);
             $product->update($validated);
-            session()->flash('success', "Barang '{$product->name}' berhasil diperbarui.");
+            $message = "Barang '{$product->name}' berhasil diperbarui.";
+            session()->flash('success', $message);
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Data Barang Diperbarui',
+                'text' => $message,
+                'toast' => true,
+            ]);
         } else {
             $validated['current_stock'] = 0;
             $product = Product::create($validated);
-            session()->flash('success', "Barang baru '{$product->name}' berhasil ditambahkan.");
+            $message = "Barang baru '{$product->name}' berhasil ditambahkan.";
+            session()->flash('success', $message);
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Barang Baru Ditambahkan',
+                'text' => $message,
+                'toast' => true,
+            ]);
         }
 
         $this->showModal = false;
-        $this->reset(['editingProductId', 'sku', 'name', 'category_id', 'unit_id', 'minimum_stock']);
+        $this->reset(['editingProductId', 'sku', 'name', 'category_id', 'unit_id', 'minimum_stock', 'is_active']);
+        $this->is_active = true;
+        $this->resetValidation();
     }
 
     public function toggleActive(Product $product): void
     {
         $product->update(['is_active' => ! $product->is_active]);
-        session()->flash('success', "Status barang '{$product->name}' berhasil diubah.");
+        $statusLabel = $product->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        $message = "Status barang '{$product->name}' berhasil {$statusLabel}.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Status Barang Diubah',
+            'text' => $message,
+            'toast' => true,
+        ]);
+    }
+
+    public function delete(int $id): void
+    {
+        $product = Product::findOrFail($id);
+
+        if ($product->transactionItems()->exists() || $product->opnameItems()->exists()) {
+            $errorMsg = "Barang '{$product->name}' sudah memiliki riwayat mutasi atau stock opname. Gunakan tombol Nonaktifkan agar histori audit tetap terjaga.";
+            session()->flash('error', $errorMsg);
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Tidak Dapat Dihapus',
+                'text' => $errorMsg,
+                'toast' => false,
+            ]);
+
+            return;
+        }
+
+        $productName = $product->name;
+        $product->delete();
+
+        $message = "Barang '{$productName}' berhasil dihapus secara permanen.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Barang Dihapus',
+            'text' => $message,
+            'toast' => true,
+        ]);
     }
 
     public function render()

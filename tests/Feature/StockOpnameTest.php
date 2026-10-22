@@ -199,6 +199,113 @@ class StockOpnameTest extends TestCase
         Livewire::test(StockOpnameEdit::class, ['opname' => $opname])->assertStatus(200);
     }
 
+    public function test_stock_opname_index_renders_polished_layout_and_filters_correctly(): void
+    {
+        $earlyOpname = $this->stockService->recordStockOpname(
+            [
+                'opname_date' => '2026-10-10',
+                'note' => 'Audit stok awal pekan',
+            ],
+            [
+                [
+                    'product_id' => $this->product->id,
+                    'physical_stock' => 50,
+                    'reason' => 'SESUAI',
+                    'item_notes' => 'Kondisi barang baik',
+                ],
+            ],
+            $this->admin->id
+        );
+
+        $lateOpname = $this->stockService->recordStockOpname(
+            [
+                'opname_date' => '2026-10-20',
+                'note' => 'Pemeriksaan akhir periode',
+            ],
+            [
+                [
+                    'product_id' => $this->product->id,
+                    'physical_stock' => 48,
+                    'reason' => 'RUSAK',
+                    'item_notes' => 'Dua kemasan bocor',
+                ],
+            ],
+            $this->admin->id
+        );
+
+        $this->actingAs($this->admin);
+
+        Livewire::test(StockOpnameIndex::class)
+            ->assertSee('Stock Opname & Penyesuaian Stok', false)
+            ->assertSee('Catat Stock Opname Baru')
+            ->assertSee($earlyOpname->opname_no)
+            ->assertSee($lateOpname->opname_no)
+            ->assertSee('Audit stok awal pekan')
+            ->assertSee('Pemeriksaan akhir periode')
+            ->set('search', $earlyOpname->opname_no)
+            ->assertSee($earlyOpname->opname_no)
+            ->assertDontSee($lateOpname->opname_no)
+            ->set('search', '')
+            ->set('startDate', '2026-10-15')
+            ->assertDontSee($earlyOpname->opname_no)
+            ->assertSee($lateOpname->opname_no)
+            ->set('startDate', '')
+            ->set('endDate', '2026-10-15')
+            ->assertSee($earlyOpname->opname_no)
+            ->assertDontSee($lateOpname->opname_no)
+            ->set('endDate', '')
+            ->set('search', 'Admin Opname')
+            ->assertSee($earlyOpname->opname_no)
+            ->assertSee($lateOpname->opname_no)
+            ->set('search', 'Pemeriksaan akhir periode')
+            ->assertDontSee($earlyOpname->opname_no)
+            ->assertSee($lateOpname->opname_no)
+            ->set('search', 'DOKUMEN_TIDAK_ADA')
+            ->assertSee('Belum ada riwayat dokumen Stock Opname');
+    }
+
+    public function test_stock_opname_detail_renders_polished_layout_and_kpi_cards(): void
+    {
+        $opname = $this->stockService->recordStockOpname(
+            [
+                'opname_date' => '2026-10-22',
+                'note' => 'Audit stok fisik gudang utama',
+            ],
+            [
+                [
+                    'product_id' => $this->product->id,
+                    'physical_stock' => 46,
+                    'reason' => 'RUSAK',
+                    'item_notes' => '4 bungkus rusak terkena air',
+                ],
+            ],
+            $this->admin->id
+        );
+
+        $this->actingAs($this->admin);
+
+        Livewire::test(StockOpnameShow::class, ['opname' => $opname])
+            ->assertSee('Detail Stock Opname')
+            ->assertSee('Kembali ke Daftar Opname')
+            ->assertSee('Edit Opname')
+            ->assertSee('Hapus')
+            ->assertSee('Export Excel (.xls)')
+            ->assertSee('Cetak Berita Acara')
+            ->assertSeeHtml('href="'.route('opnames.index').'"')
+            ->assertSeeHtml('href="'.route('opnames.edit', $opname->id).'"')
+            ->assertSeeHtml('href="'.route('export.opname', $opname->id).'"')
+            ->assertSeeHtml('onclick="window.print()"')
+            ->assertSee($opname->opname_no)
+            ->assertSee('Berkah Mandiri Inventory')
+            ->assertSee('Berita Acara Stock Opname')
+            ->assertSeeInOrder(['Total Diperiksa', '1 Barang', 'Stok Sesuai', '0 Barang', 'Kurang / Rusak', '1 Barang', 'Lebih / Surplus', '0 Barang'])
+            ->assertSee($this->product->sku)
+            ->assertSee($this->product->name)
+            ->assertSee('Bahan Baku')
+            ->assertSee('Barang Rusak')
+            ->assertSee('4 bungkus rusak terkena air');
+    }
+
     public function test_can_update_stock_opname_and_reconcile_product_stock(): void
     {
         $opname = $this->stockService->recordStockOpname(
@@ -266,5 +373,117 @@ class StockOpnameTest extends TestCase
 
         // Stock reverted from 40 back to 50
         $this->assertEquals(50, $this->product->fresh()->current_stock);
+    }
+
+    public function test_stock_opname_create_renders_polished_layout_and_handles_dynamic_rows(): void
+    {
+        $this->actingAs($this->admin);
+
+        $test = Livewire::test(StockOpnameCreate::class)
+            ->assertSee('Formulir Pemeriksaan Stock Opname')
+            ->assertSee('Audit Fisik')
+            ->assertSee('Daftar Opname')
+            ->assertSee('Informasi Pelaksanaan Opname')
+            ->assertSee('Tanggal Perhitungan Fisik')
+            ->assertSee('Catatan / Berita Acara Singkat')
+            ->assertSee('Daftar Barang yang Diperiksa')
+            ->assertSee('Tambah Baris Barang')
+            ->assertSee('Simpan & Sesuaikan Stok Sistem', false)
+            ->assertSeeHtml('href="'.route('opnames.index').'"')
+            ->assertCount('items', 1);
+
+        $test->call('addItem')
+            ->assertCount('items', 2);
+
+        $test->set('items.0.product_id', $this->product->id)
+            ->assertSet('items.0.system_stock', 50)
+            ->assertSet('items.0.physical_stock', 50)
+            ->assertSet('items.0.difference', 0)
+            ->assertSet('items.0.reason', 'SESUAI');
+
+        $test->set('items.0.physical_stock', 42)
+            ->assertSet('items.0.difference', -8)
+            ->assertSet('items.0.reason', 'RUSAK');
+
+        $test->call('removeItem', 1)
+            ->assertCount('items', 1);
+
+        $test->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertEquals(42, $this->product->fresh()->current_stock);
+        $this->assertDatabaseHas('stock_opname_items', [
+            'product_id' => $this->product->id,
+            'physical_stock' => 42,
+            'difference' => -8,
+            'reason' => 'RUSAK',
+        ]);
+    }
+
+    public function test_stock_opname_edit_renders_polished_layout_and_updates_rows(): void
+    {
+        $opname = $this->stockService->recordStockOpname(
+            [
+                'opname_date' => '2026-10-22',
+                'note' => 'Audit awal bulan',
+            ],
+            [
+                [
+                    'product_id' => $this->product->id,
+                    'physical_stock' => 45,
+                    'reason' => 'RUSAK',
+                    'item_notes' => '5 kantong rusak',
+                ],
+            ],
+            $this->admin->id
+        );
+
+        $this->actingAs($this->admin);
+
+        Livewire::test(StockOpnameEdit::class, ['opname' => $opname])
+            ->assertSee('Edit Berita Acara Stock Opname')
+            ->assertSee('Koreksi Audit')
+            ->assertSee($opname->opname_no)
+            ->assertSee('Kembali ke Detail')
+            ->assertSeeHtml('href="'.route('opnames.show', $opname->id).'"')
+            ->assertSee('Informasi Dokumen Opname')
+            ->assertSee('Tanggal Pemeriksaan Fisik')
+            ->assertSee('Catatan / Keterangan Berita Acara')
+            ->assertSee('Daftar Barang yang Diperiksa')
+            ->assertSee('Tambah Baris Barang')
+            ->assertSee('Perbarui & Sesuaikan Stok Sistem', false)
+            ->assertCount('items', 1)
+            ->set('items.0.physical_stock', 47)
+            ->assertSet('items.0.difference', -3)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertRedirect(route('opnames.show', $opname->id));
+
+        $this->assertEquals(47, $this->product->fresh()->current_stock);
+    }
+
+    public function test_stock_opname_create_validates_required_fields_and_duplicate_products(): void
+    {
+        $this->actingAs($this->admin);
+
+        Livewire::test(StockOpnameCreate::class)
+            ->set('opname_date', '')
+            ->set('items.0.product_id', '')
+            ->set('items.0.physical_stock', -1)
+            ->call('save')
+            ->assertHasErrors([
+                'opname_date' => 'required',
+                'items.0.product_id' => 'required',
+                'items.0.physical_stock' => 'min',
+            ]);
+
+        Livewire::test(StockOpnameCreate::class)
+            ->set('items.0.product_id', $this->product->id)
+            ->set('items.0.physical_stock', 50)
+            ->call('addItem')
+            ->set('items.1.product_id', $this->product->id)
+            ->set('items.1.physical_stock', 50)
+            ->call('save')
+            ->assertHasErrors(['items']);
     }
 }

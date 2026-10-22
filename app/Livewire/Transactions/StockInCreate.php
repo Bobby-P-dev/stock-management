@@ -64,7 +64,14 @@ class StockInCreate extends Component
 
         $productIds = array_column($this->items, 'product_id');
         if (count($productIds) !== count(array_unique($productIds))) {
-            $this->addError('items', 'Terdapat barang duplikat di formulir. Harap gabungkan kuantitas untuk barang yang sama.');
+            $errorMsg = 'Terdapat barang duplikat di formulir. Harap gabungkan kuantitas untuk barang yang sama.';
+            $this->addError('items', $errorMsg);
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Barang Duplikat',
+                'text' => $errorMsg,
+                'toast' => false,
+            ]);
 
             return null;
         }

@@ -1,148 +1,171 @@
-<div class="space-y-6 max-w-7xl mx-auto">
-    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    Audit Fisik Gudang
-                </span>
-                <h1 class="text-xl font-bold text-slate-900 tracking-tight">Stock Opname & Penyesuaian Stok</h1>
+<div class="space-y-6 min-w-0">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
+        <div class="flex items-start gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-200/60 flex items-center justify-center text-blue-600 shrink-0 shadow-2xs mt-0.5">
+                <x-heroicon-o-clipboard-document-check class="w-5 h-5 stroke-[2]" />
             </div>
-            <p class="text-xs text-slate-500 mt-1">Rekapitulasi pemeriksaan fisik riil inventaris barang terhadap pencatatan sistem secara berkala.</p>
+            <div class="min-w-0">
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight">Stock Opname & Penyesuaian Stok</h1>
+                <p class="text-xs text-slate-500 mt-1">Rekapitulasi pemeriksaan fisik riil inventaris barang terhadap pencatatan sistem secara berkala.</p>
+            </div>
         </div>
 
-        <a
+        <x-ui.button
             href="{{ route('opnames.create') }}"
-            class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs shadow-sm transition self-start sm:self-auto"
+            variant="primary"
+            size="sm"
+            class="w-full sm:w-auto"
         >
-            <x-heroicon-o-plus class="w-4 h-4" />
+            <x-slot:icon>
+                <x-heroicon-o-plus class="w-4 h-4 mr-1.5 stroke-[2]" />
+            </x-slot:icon>
             Catat Stock Opname Baru
-        </a>
+        </x-ui.button>
     </div>
 
     @if(session('success'))
-    <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2 shadow-sm">
+    <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2.5 shadow-2xs">
         <x-heroicon-s-check-circle class="w-4 h-4 text-emerald-600 shrink-0" />
-        <span>{{ session('success') }}</span>
+        <span class="font-medium">{{ session('success') }}</span>
     </div>
     @endif
 
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white border border-slate-200/80 p-4 rounded-2xl shadow-sm">
-        <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Cari Dokumen / Catatan</label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
-                    <x-heroicon-o-magnifying-glass class="w-4 h-4" />
-                </div>
-                <input
+    <div class="bg-white border border-slate-200/80 p-4 sm:p-5 rounded-2xl shadow-2xs space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3.5 items-end">
+            <div class="sm:col-span-2 lg:col-span-6 min-w-0">
+                <x-ui.input
+                    label="Cari Dokumen / Catatan"
                     wire:model.live.debounce.300ms="search"
-                    type="text"
                     placeholder="SOP-..., nama petugas, catatan..."
-                    class="w-full pl-9 pr-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
                 >
+                    <x-slot:icon>
+                        <x-heroicon-o-magnifying-glass class="w-4 h-4 text-slate-400" />
+                    </x-slot:icon>
+                </x-ui.input>
+            </div>
+
+            <div class="lg:col-span-3 min-w-0">
+                <x-ui.input
+                    label="Dari Tanggal"
+                    wire:model.live="startDate"
+                    type="date"
+                />
+            </div>
+
+            <div class="lg:col-span-3 min-w-0">
+                <x-ui.input
+                    label="Sampai Tanggal"
+                    wire:model.live="endDate"
+                    type="date"
+                />
             </div>
         </div>
 
-        <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Dari Tanggal</label>
-            <input
-                wire:model.live="startDate"
-                type="date"
-                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
-            >
-        </div>
-
-        <div>
-            <label class="block text-[11px] font-semibold text-slate-600 mb-1">Sampai Tanggal</label>
-            <input
-                wire:model.live="endDate"
-                type="date"
-                class="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 text-slate-900 text-xs focus:outline-none focus:bg-white focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
-            >
-        </div>
     </div>
 
-    <div class="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs">
-                <thead>
-                    <tr class="text-slate-500 bg-slate-50/80 border-b border-slate-200 uppercase tracking-wider text-[11px]">
-                        <th class="py-3 px-4 font-semibold">No. Dokumen Opname</th>
-                        <th class="py-3 px-4 font-semibold">Tanggal Fisik</th>
-                        <th class="py-3 px-4 font-semibold text-center">Jumlah Barang</th>
-                        <th class="py-3 px-4 font-semibold">Catatan / Berita Acara</th>
-                        <th class="py-3 px-4 font-semibold">Petugas Pemeriksa</th>
-                        <th class="py-3 px-4 font-semibold text-right">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    @forelse($opnames as $op)
-                    <tr class="hover:bg-slate-50/80 transition">
-                        <td class="py-3.5 px-4 font-mono font-bold text-slate-900">
-                            {{ $op->opname_no }}
-                        </td>
-                        <td class="py-3.5 px-4 text-slate-600">
-                            {{ $op->opname_date->format('d/m/Y') }}
-                        </td>
-                        <td class="py-3.5 px-4 text-center">
-                            <span class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 font-semibold text-[11px] border border-slate-200/60">
-                                {{ $op->items->count() }} jenis barang
-                            </span>
-                        </td>
-                        <td class="py-3.5 px-4 text-slate-600 max-w-xs truncate">
-                            {{ $op->note ?: '-' }}
-                        </td>
-                        <td class="py-3.5 px-4 text-slate-500">
-                            <div class="text-slate-800 font-medium">{{ $op->creator->name }}</div>
-                            <div class="text-[10px] capitalize text-slate-400">{{ $op->creator->role }}</div>
-                        </td>
-                        <td class="py-3.5 px-4 text-right">
-                            <div class="inline-flex items-center gap-1.5">
-                                <a
-                                    href="{{ route('opnames.show', $op->id) }}"
-                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold border border-indigo-200/60 transition"
-                                    title="Lihat Berita Acara"
-                                >
-                                    <x-heroicon-o-eye class="w-3.5 h-3.5" />
-                                    Rincian
-                                </a>
+    <x-ui.table loadingTarget="search,startDate,endDate,gotoPage,previousPage,nextPage">
+        <x-slot:head>
+            <x-ui.th class="w-48 whitespace-nowrap">No. Dokumen Opname</x-ui.th>
+            <x-ui.th class="w-32 whitespace-nowrap">Tanggal Fisik</x-ui.th>
+            <x-ui.th align="center" class="w-36 whitespace-nowrap">Jumlah Barang</x-ui.th>
+            <x-ui.th class="min-w-[220px]">Catatan / Berita Acara</x-ui.th>
+            <x-ui.th class="min-w-[160px]">Petugas Pemeriksa</x-ui.th>
+            <x-ui.th align="right" class="w-64 whitespace-nowrap">Aksi</x-ui.th>
+        </x-slot:head>
 
-                                <a
-                                    href="{{ route('opnames.edit', $op->id) }}"
-                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-700 text-xs font-semibold border border-amber-200/60 transition"
-                                    title="Edit Dokumen Opname"
-                                >
-                                    <x-heroicon-o-pencil-square class="w-3.5 h-3.5" />
-                                    Edit
-                                </a>
+        @forelse($opnames as $op)
+        <tr wire:key="opname-row-{{ $op->id }}" class="hover:bg-slate-50/60 transition">
+            <x-ui.td class="font-mono font-bold text-slate-900 tracking-tight whitespace-nowrap">
+                {{ $op->opname_no }}
+            </x-ui.td>
 
-                                <button
-                                    wire:click="delete({{ $op->id }})"
-                                    wire:confirm="Yakin ingin menghapus dokumen Stock Opname {{ $op->opname_no }}? Penyesuaian stok barang akan dibatalkan."
-                                    type="button"
-                                    class="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-semibold border border-rose-200/60 transition cursor-pointer"
-                                    title="Hapus Dokumen Opname"
-                                >
-                                    <x-heroicon-o-trash class="w-3.5 h-3.5" />
-                                    Hapus
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="py-12 text-center text-slate-400">
-                            <x-heroicon-o-inbox class="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                            Belum ada riwayat dokumen Stock Opname yang tercatat.
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+            <x-ui.td class="text-slate-600 whitespace-nowrap tabular-nums">
+                {{ $op->opname_date->format('d/m/Y') }}
+            </x-ui.td>
 
-        <div class="p-4 border-t border-slate-100 bg-slate-50/50">
+            <x-ui.td align="center" class="whitespace-nowrap">
+                <x-ui.badge variant="neutral" size="md">
+                    {{ $op->items->count() }} jenis barang
+                </x-ui.badge>
+            </x-ui.td>
+
+            <x-ui.td class="text-slate-600">
+                <p class="max-w-md whitespace-normal break-words leading-relaxed text-xs">
+                    {{ $op->note ?: '-' }}
+                </p>
+            </x-ui.td>
+
+            <x-ui.td>
+                <div class="text-slate-800 font-medium break-words">{{ $op->creator->name }}</div>
+                <div class="text-[11px] capitalize text-slate-500 mt-0.5">{{ $op->creator->role }}</div>
+            </x-ui.td>
+
+            <x-ui.td align="right" class="whitespace-nowrap">
+                <div class="inline-flex items-center justify-end gap-1.5">
+                    <x-ui.button
+                        href="{{ route('opnames.show', $op->id) }}"
+                        variant="outline"
+                        size="xs"
+                        title="Lihat Berita Acara"
+                    >
+                        <x-slot:icon>
+                            <x-heroicon-o-eye class="w-3.5 h-3.5 mr-1 text-slate-500" />
+                        </x-slot:icon>
+                        Rincian
+                    </x-ui.button>
+
+                    <x-ui.button
+                        href="{{ route('opnames.edit', $op->id) }}"
+                        variant="secondary"
+                        size="xs"
+                        title="Edit Dokumen Opname"
+                    >
+                        <x-slot:icon>
+                            <x-heroicon-o-pencil-square class="w-3.5 h-3.5 mr-1" />
+                        </x-slot:icon>
+                        Edit
+                    </x-ui.button>
+
+                    <x-ui.button
+                        @click="window.SwalConfirm({
+                            title: 'Hapus Dokumen Opname?',
+                            text: 'Dokumen Stock Opname {{ addslashes($op->opname_no) }} akan dihapus dan seluruh penyesuaian stok barang pada dokumen ini akan dikembalikan.',
+                            icon: 'warning',
+                            confirmText: 'Ya, Hapus & Batalkan Stok',
+                            variant: 'rose',
+                            onConfirm: () => $wire.delete({{ $op->id }})
+                        })"
+                        variant="danger"
+                        size="xs"
+                        title="Hapus Dokumen Opname"
+                    >
+                        <x-slot:icon>
+                            <x-heroicon-o-trash class="w-3.5 h-3.5 mr-1" />
+                        </x-slot:icon>
+                        Hapus
+                    </x-ui.button>
+                </div>
+            </x-ui.td>
+        </tr>
+        @empty
+        <tr>
+            <td colspan="6">
+                <x-ui.empty-state
+                    title="Belum ada riwayat dokumen Stock Opname"
+                    description="Dokumen hasil audit fisik gudang akan tercatat di sini secara otomatis."
+                >
+                    <x-slot:icon>
+                        <x-heroicon-o-inbox class="w-6 h-6 stroke-[1.5]" />
+                    </x-slot:icon>
+                </x-ui.empty-state>
+            </td>
+        </tr>
+        @endforelse
+
+        @if($opnames->hasPages())
+        <x-slot:footer>
             {{ $opnames->links() }}
-        </div>
-    </div>
+        </x-slot:footer>
+        @endif
+    </x-ui.table>
 </div>
-

@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import 'sweetalert2/dist/sweetalert2.min.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
@@ -6,4 +7,351 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-bmi-bg: #f8fafc;
+    --color-bmi-surface: #ffffff;
+    --color-bmi-primary: #2563eb;
+    --color-bmi-primary-hover: #1d4ed8;
+    --color-bmi-text: #0f172a;
+    --color-bmi-muted: #64748b;
+    --color-bmi-border: #e2e8f0;
+    --color-bmi-success: #059669;
+    --color-bmi-warning: #d97706;
+    --color-bmi-danger: #e11d48;
 }
+
+@media print {
+    @page stock-opname {
+        size: A4 landscape;
+        margin: 12mm;
+    }
+
+    body:has(.bmi-opname-page) {
+        page: stock-opname;
+        font-size: 10pt;
+        print-color-adjust: economy;
+        -webkit-print-color-adjust: economy;
+    }
+
+    body:has(.bmi-opname-page) > div:has(main),
+    body:has(.bmi-opname-page) > div > div:has(main),
+    body:has(.bmi-opname-page) main {
+        display: block !important;
+        min-height: 0 !important;
+        height: auto !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    body:has(.bmi-opname-page) aside,
+    body:has(.bmi-opname-page) header,
+    body:has(.bmi-opname-page) .swal2-container {
+        display: none !important;
+    }
+
+    .bmi-opname-page,
+    .bmi-opname-document {
+        margin: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        width: 100%;
+    }
+
+    .bmi-opname-document * {
+        color: #111 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+
+    .bmi-opname-document > * {
+        margin-block: 0 4mm !important;
+    }
+
+    .bmi-opname-heading {
+        display: grid !important;
+        grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+        gap: 8mm !important;
+        padding-bottom: 4mm !important;
+        border-bottom: 1.5pt solid #111 !important;
+        break-inside: avoid;
+    }
+
+    .bmi-opname-document .bmi-opname-title {
+        font-size: 18pt !important;
+        font-weight: 700;
+        line-height: 1.2;
+        margin-top: 2mm;
+    }
+
+    .bmi-opname-reference {
+        text-align: right;
+    }
+
+    .bmi-opname-reference > div:nth-child(2) {
+        font-size: 14pt;
+    }
+
+    .bmi-opname-document .text-xs,
+    .bmi-opname-document .text-\[11px\] {
+        font-size: 10pt !important;
+    }
+
+    .bmi-opname-metadata {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) !important;
+        gap: 6mm !important;
+        padding-bottom: 4mm !important;
+        border-bottom: 0.5pt solid #888 !important;
+    }
+
+    .bmi-opname-metadata > div {
+        grid-column: auto !important;
+    }
+
+    .bmi-opname-metadata > div:last-child > div {
+        padding: 2mm 3mm;
+        border-radius: 0;
+        border-color: #888;
+    }
+
+    .bmi-opname-summary {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 3mm !important;
+        break-inside: avoid;
+    }
+
+    .bmi-opname-summary > div {
+        padding: 3mm !important;
+        border: 0.5pt solid #777 !important;
+        border-radius: 0 !important;
+    }
+
+    .bmi-opname-summary p {
+        white-space: normal;
+        overflow: visible;
+    }
+
+    .bmi-opname-summary p + p {
+        font-size: 15pt !important;
+        margin-top: 2mm;
+    }
+
+    .bmi-opname-summary svg,
+    .bmi-opname-summary > div > div > div:last-child:not(:first-child) {
+        display: none;
+    }
+
+    .bmi-opname-items,
+    .bmi-opname-items > div {
+        overflow: visible !important;
+        border-radius: 0 !important;
+    }
+
+    .bmi-opname-items table {
+        width: 100% !important;
+        table-layout: fixed;
+        border-collapse: collapse;
+        font-size: 10pt;
+    }
+
+    .bmi-opname-items thead {
+        display: table-header-group;
+    }
+
+    .bmi-opname-items tr {
+        break-inside: avoid;
+    }
+
+    .bmi-opname-items th,
+    .bmi-opname-items td {
+        min-width: 0 !important;
+        padding: 2mm 1.5mm !important;
+        border: 0.5pt solid #777 !important;
+        vertical-align: top;
+        line-height: 1.4 !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+    }
+
+    .bmi-opname-items th {
+        font-weight: 700;
+    }
+
+    .bmi-opname-items th:nth-child(1) { width: 4%; }
+    .bmi-opname-items th:nth-child(2) { width: 12%; }
+    .bmi-opname-items th:nth-child(3) { width: 20%; }
+    .bmi-opname-items th:nth-child(4) { width: 10%; }
+    .bmi-opname-items th:nth-child(5),
+    .bmi-opname-items th:nth-child(6) { width: 9%; }
+    .bmi-opname-items th:nth-child(7) { width: 6%; }
+    .bmi-opname-items th:nth-child(8) { width: 12%; }
+    .bmi-opname-items th:nth-child(9) { width: 18%; }
+
+    .bmi-opname-items td :is(div, p, span) {
+        max-width: none !important;
+        white-space: normal !important;
+        overflow-wrap: anywhere;
+    }
+
+    .bmi-opname-items td:last-child p {
+        white-space: pre-line !important;
+    }
+
+    .bmi-opname-items td:nth-child(8) span {
+        display: block;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        font-size: inherit;
+    }
+}
+/* Modern SweetAlert2 Customization (Berkah Mandiri Design System) */
+body:not(.swal2-toast-shown):not(.swal2-no-backdrop) .swal2-container.swal2-backdrop-show:not(.bmi-swal-toast-container) {
+    background: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+body.swal2-toast-shown .swal2-container,
+.swal2-container.bmi-swal-toast-container,
+.swal2-container:has(.swal2-toast),
+.swal2-container:has(.bmi-swal-toast) {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    inset: 1rem 1rem auto auto !important;
+    width: auto !important;
+    max-width: min(24rem, calc(100vw - 2rem)) !important;
+    height: auto !important;
+    padding: 0 !important;
+    pointer-events: none !important;
+    z-index: 60 !important;
+}
+
+body.swal2-toast-shown .swal2-container .swal2-popup,
+.swal2-container.bmi-swal-toast-container .swal2-popup,
+.swal2-popup.bmi-swal-toast {
+    pointer-events: auto !important;
+}
+
+.swal2-popup.bmi-swal-popup {
+    font-family: var(--font-sans);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+    background: #ffffff;
+    color: #0f172a;
+}
+
+.swal2-popup.bmi-swal-toast {
+    font-family: var(--font-sans);
+    border-radius: 0.875rem;
+    padding: 0.875rem 1rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.05);
+    background: #ffffff;
+    color: #0f172a;
+}
+
+.bmi-swal-popup .swal2-icon {
+    margin: 0.25rem auto 1rem;
+    transform: scale(0.88);
+}
+
+.bmi-swal-toast .swal2-icon {
+    margin: 0 0.75rem 0 0 !important;
+}
+
+.bmi-swal-popup .swal2-icon.swal2-success {
+    border-color: #10b981;
+    color: #059669;
+}
+
+.bmi-swal-popup .swal2-icon.swal2-success [class^='swal2-success-line'] {
+    background-color: #059669;
+}
+
+.bmi-swal-popup .swal2-icon.swal2-success .swal2-success-ring {
+    border-color: rgba(16, 185, 129, 0.25);
+}
+
+.bmi-swal-popup .swal2-icon.swal2-error {
+    border-color: #f43f5e;
+    color: #e11d48;
+}
+
+.bmi-swal-popup .swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+    background-color: #e11d48;
+}
+
+.bmi-swal-popup .swal2-icon.swal2-warning {
+    border-color: #f59e0b;
+    color: #d97706;
+}
+
+.bmi-swal-popup .swal2-icon.swal2-question,
+.bmi-swal-popup .swal2-icon.swal2-info {
+    border-color: #6366f1;
+    color: #4f46e5;
+}
+
+.bmi-swal-toast .swal2-timer-progress-bar {
+    background: rgba(79, 70, 229, 0.25);
+}
+
+/* Dedicated A4 Print Ledger Styling */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 12mm 10mm;
+    }
+
+    html,
+    body {
+        background: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 9pt;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .bmi-print-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        table-layout: fixed;
+    }
+
+    .bmi-print-table thead {
+        display: table-header-group;
+    }
+
+    .bmi-print-table tfoot {
+        display: table-footer-group;
+    }
+
+    .bmi-print-table tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .bmi-print-table th,
+    .bmi-print-table td {
+        border: 1px solid #94a3b8 !important;
+        padding: 5px 6px !important;
+        font-size: 8.5pt !important;
+        line-height: 1.35 !important;
+        color: #0f172a !important;
+        vertical-align: top;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    .bmi-print-table th {
+        background-color: #f1f5f9 !important;
+        font-weight: 700 !important;
+    }
+}
+

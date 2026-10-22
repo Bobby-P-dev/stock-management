@@ -4,11 +4,29 @@
     'searchPlaceholder' => 'Cari...',
     'emptyTitle' => 'No results',
     'emptyMessage' => 'Tidak ada data yang cocok dengan nama tersebut.',
-    'limit' => 5,
+    'limit' => 100,
     'required' => false,
+    'disabled' => false,
+    'dropUp' => false,
+    'id' => null,
+    'name' => null,
+    'label' => null,
+    'error' => null,
+    'hint' => null,
 ])
 
 @php
+    $wireModel = $attributes->whereStartsWith('wire:model')->first();
+    $fieldName = $name ?? $wireModel;
+    $selectId = $id ?? ($fieldName ? 'select-' . str_replace(['.', '_'], '-', $fieldName) : 'select-' . uniqid());
+    $errorMessage = $error ?? ($fieldName && isset($errors) ? $errors->first($fieldName) : null);
+    $errorId = $selectId . '-error';
+    $hintId = $selectId . '-hint';
+    $describedBy = collect([
+        $errorMessage ? $errorId : null,
+        (! $errorMessage && $hint) ? $hintId : null,
+    ])->filter()->implode(' ') ?: null;
+
     $normalizedOptions = collect($options)->map(function ($item, $key) {
         if (is_object($item)) {
             $value = $item->id ?? $item->value ?? $key;
@@ -44,6 +62,7 @@
 <div
     x-data="{
         open: false,
+        dropUp: {{ $dropUp ? 'true' : 'false' }},
         search: '',
         value: null,
         limit: {{ $limit }},
@@ -53,6 +72,16 @@
             this.$watch('options', () => {
                 this.highlightIndex = 0;
             });
+        },
+        toggle() {
+            if ({{ $disabled ? 'true' : 'false' }}) return;
+            this.open = !this.open;
+            if (this.open) {
+                this.search = '';
+                this.$nextTick(() => {
+                    this.$refs.searchInput?.focus();
+                });
+            }
         },
         get selectedLabel() {
             if (this.value === null || this.value === undefined) {
@@ -117,19 +146,33 @@
     x-effect="options = @js($normalizedOptions)"
     {{ $attributes->whereDoesntStartWith('class') }}
     @click.outside="open = false; search = ''"
-    @keydown.escape.window="open = false; search = ''"
-    class="relative z-20 {{ $attributes->get('class') }}"
+    @keydown.escape.window="if (open) { open = false; search = ''; $event._dropdownClosed = true; $refs.triggerBtn?.focus(); }"
+    class="relative {{ $attributes->get('class') }}"
+    :class="open ? 'z-50' : 'z-10'"
 >
     <!-- Hidden input for standard form/Livewire capture -->
-    <input type="hidden" x-ref="hiddenInput" :value="value">
+    <input type="hidden" x-ref="hiddenInput" @if ($fieldName) name="{{ $fieldName }}" @endif :value="value">
+
+    @if ($label)
+        <x-ui.label :for="$selectId" :required="$required">
+            {{ $label }}
+        </x-ui.label>
+    @endif
 
     <!-- Trigger Button -->
     <button
+        id="{{ $selectId }}"
+        x-ref="triggerBtn"
         type="button"
-        @click="open = !open; if(open) { search = ''; $nextTick(() => $refs.searchInput?.focus()); }"
-        class="w-full px-3 py-2 rounded-lg bg-white border border-slate-300 text-slate-900 text-xs font-medium flex items-center justify-between gap-2 shadow-xs cursor-pointer hover:border-slate-400 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
+        @if ($disabled) disabled @endif
+        aria-haspopup="listbox"
+        :aria-expanded="open ? 'true' : 'false'"
+        aria-invalid="{{ $errorMessage ? 'true' : 'false' }}"
+        @if ($describedBy) aria-describedby="{{ $describedBy }}" @endif
+        @click="toggle()"
+        class="w-full h-[42px] px-3.5 py-2 rounded-xl bg-white border {{ $errorMessage ? 'border-rose-300 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 hover:border-slate-300 focus:border-blue-600 focus:ring-blue-600/20' }} text-slate-900 text-xs font-medium flex items-center justify-between gap-2 shadow-2xs cursor-pointer focus:outline-none focus:ring-2 disabled:bg-slate-50 disabled:text-slate-400 disabled:cursor-not-allowed transition"
     >
-        <span class="truncate" :class="selectedLabel ? 'text-slate-800 font-medium' : 'text-slate-500 font-normal'" x-text="selectedLabel || '{{ $placeholder }}'">
+        <span class="truncate" :class="selectedLabel ? 'text-slate-800 font-medium' : 'text-slate-400 font-normal'" x-text="selectedLabel || '{{ $placeholder }}'">
         </span>
         <svg class="w-4 h-4 text-slate-400 shrink-0 transition-transform duration-150" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -145,7 +188,8 @@
         x-transition:leave="transition ease-in duration-75"
         x-transition:leave-start="transform opacity-100 scale-100"
         x-transition:leave-end="transform opacity-0 scale-98"
-        class="absolute z-30 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden"
+        class="absolute z-50 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden"
+        :class="dropUp ? 'bottom-full mb-1.5' : 'top-full mt-1.5'"
         style="display: none;"
     >
         <!-- Search Input Header -->
@@ -187,12 +231,12 @@
                     @mouseenter="highlightIndex = idx"
                     class="w-full px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-100 transition-colors flex items-center justify-between gap-2 cursor-pointer"
                     :class="{
-                        'bg-indigo-50 text-indigo-700 font-semibold': String(opt.value) === String(value),
+                        'bg-blue-50 text-blue-700 font-semibold': String(opt.value) === String(value),
                         'bg-slate-50': highlightIndex === idx && String(opt.value) !== String(value)
                     }"
                 >
                     <span class="truncate" x-text="opt.label"></span>
-                    <span x-show="String(opt.value) === String(value)" class="text-indigo-600 text-xs font-bold shrink-0">✓</span>
+                    <span x-show="String(opt.value) === String(value)" class="text-blue-600 text-xs font-bold shrink-0">✓</span>
                 </button>
             </template>
 
@@ -210,4 +254,10 @@
             </div>
         </div>
     </div>
+
+    @if ($errorMessage)
+        <x-ui.field-error :id="$errorId" :messages="$errorMessage" />
+    @elseif ($hint)
+        <p id="{{ $hintId }}" class="mt-1.5 text-[11px] text-slate-400">{{ $hint }}</p>
+    @endif
 </div>

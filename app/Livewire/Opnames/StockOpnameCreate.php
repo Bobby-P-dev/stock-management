@@ -107,8 +107,15 @@ class StockOpnameCreate extends Component
 
         $productIds = array_column($this->items, 'product_id');
         if (count($productIds) !== count(array_unique($productIds))) {
+            $errorMsg = 'Terdapat produk ganda dalam daftar pemeriksaan opname.';
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Barang Duplikat',
+                'text' => $errorMsg,
+                'toast' => false,
+            ]);
             throw ValidationException::withMessages([
-                'items' => 'Terdapat produk ganda dalam daftar pemeriksaan opname.',
+                'items' => $errorMsg,
             ]);
         }
 

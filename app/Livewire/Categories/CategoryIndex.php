@@ -44,20 +44,40 @@ class CategoryIndex extends Component
         return $rules;
     }
 
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
     public function create(): void
     {
-        $this->reset(['editingCategoryId', 'name', 'description']);
+        $this->resetValidation();
+        $this->reset(['editingCategoryId', 'name', 'description', 'is_active']);
         $this->is_active = true;
         $this->showModal = true;
     }
 
     public function edit(Category $category): void
     {
+        $this->resetValidation();
         $this->editingCategoryId = $category->id;
         $this->name = $category->name;
         $this->description = $category->description ?? '';
         $this->is_active = $category->is_active;
         $this->showModal = true;
+    }
+
+    public function closeModal(): void
+    {
+        $this->showModal = false;
+        $this->resetValidation();
+    }
+
+    public function updatedShowModal(bool $value): void
+    {
+        if (! $value) {
+            $this->resetValidation();
+        }
     }
 
     public function save(): void
@@ -67,20 +87,74 @@ class CategoryIndex extends Component
         if ($this->editingCategoryId) {
             $cat = Category::findOrFail($this->editingCategoryId);
             $cat->update($validated);
-            session()->flash('success', "Kategori '{$cat->name}' berhasil diperbarui.");
+            $message = "Kategori '{$cat->name}' berhasil diperbarui.";
+            session()->flash('success', $message);
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Kategori Diperbarui',
+                'text' => $message,
+                'toast' => true,
+            ]);
         } else {
             $cat = Category::create($validated);
-            session()->flash('success', "Kategori baru '{$cat->name}' berhasil ditambahkan.");
+            $message = "Kategori baru '{$cat->name}' berhasil ditambahkan.";
+            session()->flash('success', $message);
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Kategori Ditambahkan',
+                'text' => $message,
+                'toast' => true,
+            ]);
         }
 
         $this->showModal = false;
-        $this->reset(['editingCategoryId', 'name', 'description']);
+        $this->reset(['editingCategoryId', 'name', 'description', 'is_active']);
+        $this->is_active = true;
+        $this->resetValidation();
     }
 
     public function toggleActive(Category $category): void
     {
         $category->update(['is_active' => ! $category->is_active]);
-        session()->flash('success', "Status kategori '{$category->name}' berhasil diubah.");
+        $statusLabel = $category->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        $message = "Status kategori '{$category->name}' berhasil {$statusLabel}.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Status Kategori Diubah',
+            'text' => $message,
+            'toast' => true,
+        ]);
+    }
+
+    public function delete(int $id): void
+    {
+        $category = Category::findOrFail($id);
+
+        if ($category->products()->exists()) {
+            $errorMsg = "Kategori '{$category->name}' masih digunakan oleh data barang. Gunakan tombol Nonaktifkan agar klasifikasi barang tidak rusak.";
+            session()->flash('error', $errorMsg);
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Tidak Dapat Dihapus',
+                'text' => $errorMsg,
+                'toast' => false,
+            ]);
+
+            return;
+        }
+
+        $categoryName = $category->name;
+        $category->delete();
+
+        $message = "Kategori '{$categoryName}' berhasil dihapus secara permanen.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Kategori Dihapus',
+            'text' => $message,
+            'toast' => true,
+        ]);
     }
 
     public function render()

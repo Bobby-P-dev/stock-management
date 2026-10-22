@@ -46,20 +46,40 @@ class UnitIndex extends Component
         return $rules;
     }
 
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
     public function create(): void
     {
-        $this->reset(['editingUnitId', 'name', 'symbol']);
+        $this->resetValidation();
+        $this->reset(['editingUnitId', 'name', 'symbol', 'is_active']);
         $this->is_active = true;
         $this->showModal = true;
     }
 
     public function edit(Unit $unit): void
     {
+        $this->resetValidation();
         $this->editingUnitId = $unit->id;
         $this->name = $unit->name;
         $this->symbol = $unit->symbol;
         $this->is_active = $unit->is_active;
         $this->showModal = true;
+    }
+
+    public function closeModal(): void
+    {
+        $this->showModal = false;
+        $this->resetValidation();
+    }
+
+    public function updatedShowModal(bool $value): void
+    {
+        if (! $value) {
+            $this->resetValidation();
+        }
     }
 
     public function save(): void
@@ -69,20 +89,74 @@ class UnitIndex extends Component
         if ($this->editingUnitId) {
             $unit = Unit::findOrFail($this->editingUnitId);
             $unit->update($validated);
-            session()->flash('success', "Satuan '{$unit->name}' berhasil diperbarui.");
+            $message = "Satuan '{$unit->name}' berhasil diperbarui.";
+            session()->flash('success', $message);
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Satuan Diperbarui',
+                'text' => $message,
+                'toast' => true,
+            ]);
         } else {
             $unit = Unit::create($validated);
-            session()->flash('success', "Satuan baru '{$unit->name}' berhasil ditambahkan.");
+            $message = "Satuan baru '{$unit->name}' berhasil ditambahkan.";
+            session()->flash('success', $message);
+            $this->dispatch('swal', [
+                'icon' => 'success',
+                'title' => 'Satuan Ditambahkan',
+                'text' => $message,
+                'toast' => true,
+            ]);
         }
 
         $this->showModal = false;
-        $this->reset(['editingUnitId', 'name', 'symbol']);
+        $this->reset(['editingUnitId', 'name', 'symbol', 'is_active']);
+        $this->is_active = true;
+        $this->resetValidation();
     }
 
     public function toggleActive(Unit $unit): void
     {
         $unit->update(['is_active' => ! $unit->is_active]);
-        session()->flash('success', "Status satuan '{$unit->name}' berhasil diubah.");
+        $statusLabel = $unit->is_active ? 'diaktifkan' : 'dinonaktifkan';
+        $message = "Status satuan '{$unit->name}' berhasil {$statusLabel}.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Status Satuan Diubah',
+            'text' => $message,
+            'toast' => true,
+        ]);
+    }
+
+    public function delete(int $id): void
+    {
+        $unit = Unit::findOrFail($id);
+
+        if ($unit->products()->exists()) {
+            $errorMsg = "Satuan '{$unit->name}' ({$unit->symbol}) masih digunakan oleh data barang. Gunakan tombol Nonaktifkan agar satuan barang tidak terputus.";
+            session()->flash('error', $errorMsg);
+            $this->dispatch('swal', [
+                'icon' => 'error',
+                'title' => 'Tidak Dapat Dihapus',
+                'text' => $errorMsg,
+                'toast' => false,
+            ]);
+
+            return;
+        }
+
+        $unitName = $unit->name;
+        $unit->delete();
+
+        $message = "Satuan '{$unitName}' berhasil dihapus secara permanen.";
+        session()->flash('success', $message);
+        $this->dispatch('swal', [
+            'icon' => 'success',
+            'title' => 'Satuan Dihapus',
+            'text' => $message,
+            'toast' => true,
+        ]);
     }
 
     public function render()
