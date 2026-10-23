@@ -353,5 +353,100 @@ body.swal2-toast-shown .swal2-container .swal2-popup,
         background-color: #f1f5f9 !important;
         font-weight: 700 !important;
     }
+
+    @page report-landscape {
+        size: A4 landscape;
+        margin: 10mm 12mm;
+    }
+
+    body:has(.bmi-report-page) {
+        page: report-landscape;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        font-size: 9pt;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    body:has(.bmi-report-page) > div:has(main),
+    body:has(.bmi-report-page) > div > div:has(main),
+    body:has(.bmi-report-page) main {
+        display: block !important;
+        min-height: 0 !important;
+        height: auto !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+    }
+
+    body:has(.bmi-report-page) aside,
+    body:has(.bmi-report-page) header,
+    body:has(.bmi-report-page) .swal2-container {
+        display: none !important;
+    }
+
+    .bmi-report-page {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .bmi-report-page .overflow-x-auto {
+        overflow: visible !important;
+    }
+
+    .bmi-report-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 8.5pt !important;
+        line-height: 1.35 !important;
+        border: 1px solid #cbd5e1 !important;
+        background: #ffffff !important;
+        table-layout: auto !important;
+    }
+
+    .bmi-report-table thead {
+        display: table-header-group;
+    }
+
+    .bmi-report-table tfoot {
+        display: table-footer-group;
+    }
+
+    .bmi-report-table tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    .bmi-report-table th,
+    .bmi-report-table td {
+        border: 1px solid #cbd5e1 !important;
+        padding: 5px 6px !important;
+        color: #0f172a !important;
+        vertical-align: middle;
+    }
+
+    .bmi-report-table th {
+        background-color: #f1f5f9 !important;
+        font-weight: 700 !important;
+        font-size: 8pt !important;
+        letter-spacing: 0.025em;
+    }
+
+    .bmi-report-table tfoot td {
+        background-color: #f8fafc !important;
+        font-weight: 700 !important;
+    }
 }
+
+/* HTML5 Barcode Reader Video Styling */
+#html5-barcode-reader video,
+#remote-barcode-reader video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
 

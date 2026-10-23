@@ -1,6 +1,46 @@
 import Swal from 'sweetalert2';
+import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode';
+import QRCode from 'qrcode';
 
 window.Swal = Swal;
+window.Html5Qrcode = Html5Qrcode;
+window.Html5QrcodeSupportedFormats = Html5QrcodeSupportedFormats;
+window.QRCode = QRCode;
+
+/**
+ * Play a crisp, pleasant barcode scan beep sound via Web Audio API.
+ */
+window.playScanBeep = function () {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1760, audioCtx.currentTime); // Crisp A6 tone
+        gainNode.gain.setValueAtTime(0.18, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.12);
+    } catch (e) {
+        // AudioContext may be blocked before user interaction
+    }
+};
+
+/**
+ * Trigger haptic vibration on mobile device.
+ */
+window.triggerHaptic = function (duration = 100) {
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        try {
+            navigator.vibrate(duration);
+        } catch (e) {}
+    }
+};
 
 const variantButtonClasses = {
     blue: 'bg-blue-600 hover:bg-blue-700 text-white focus-visible:ring-blue-600',
@@ -154,6 +194,11 @@ function handleSwalPayload(rawPayload) {
 document.addEventListener('livewire:init', () => {
     Livewire.on('swal', (event) => {
         handleSwalPayload(event);
+    });
+
+    Livewire.on('remote-barcode-received', () => {
+        if (window.playScanBeep) window.playScanBeep();
+        if (window.triggerHaptic) window.triggerHaptic(100);
     });
 });
 

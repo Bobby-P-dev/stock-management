@@ -29,6 +29,8 @@ class ProductIndex extends Component
 
     public string $sku = '';
 
+    public string $barcode = '';
+
     public string $name = '';
 
     public ?int $category_id = null;
@@ -43,6 +45,7 @@ class ProductIndex extends Component
     {
         $rules = [
             'sku' => ['required', 'string', 'max:50'],
+            'barcode' => ['nullable', 'string', 'max:100'],
             'name' => ['required', 'string', 'max:200'],
             'category_id' => ['required', 'exists:categories,id'],
             'unit_id' => ['required', 'exists:units,id'],
@@ -52,8 +55,10 @@ class ProductIndex extends Component
 
         if ($this->editingProductId) {
             $rules['sku'][] = Rule::unique('products', 'sku')->ignore($this->editingProductId);
+            $rules['barcode'][] = Rule::unique('products', 'barcode')->ignore($this->editingProductId);
         } else {
             $rules['sku'][] = Rule::unique('products', 'sku');
+            $rules['barcode'][] = Rule::unique('products', 'barcode');
         }
 
         return $rules;
@@ -77,7 +82,7 @@ class ProductIndex extends Component
     public function create(): void
     {
         $this->resetValidation();
-        $this->reset(['editingProductId', 'sku', 'name', 'category_id', 'unit_id', 'minimum_stock', 'is_active']);
+        $this->reset(['editingProductId', 'sku', 'barcode', 'name', 'category_id', 'unit_id', 'minimum_stock', 'is_active']);
         $this->is_active = true;
         $this->minimum_stock = 5;
         $this->showModal = true;
@@ -88,6 +93,7 @@ class ProductIndex extends Component
         $this->resetValidation();
         $this->editingProductId = $product->id;
         $this->sku = $product->sku;
+        $this->barcode = $product->barcode ?? '';
         $this->name = $product->name;
         $this->category_id = $product->category_id;
         $this->unit_id = $product->unit_id;
@@ -112,6 +118,7 @@ class ProductIndex extends Component
     public function save(): void
     {
         $validated = $this->validate();
+        $validated['barcode'] = ! empty($validated['barcode']) ? trim($validated['barcode']) : null;
 
         if ($this->editingProductId) {
             $product = Product::findOrFail($this->editingProductId);
@@ -138,7 +145,7 @@ class ProductIndex extends Component
         }
 
         $this->showModal = false;
-        $this->reset(['editingProductId', 'sku', 'name', 'category_id', 'unit_id', 'minimum_stock', 'is_active']);
+        $this->reset(['editingProductId', 'sku', 'barcode', 'name', 'category_id', 'unit_id', 'minimum_stock', 'is_active']);
         $this->is_active = true;
         $this->resetValidation();
     }
@@ -196,6 +203,7 @@ class ProductIndex extends Component
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('sku', 'like', '%'.$this->search.'%')
+                        ->orWhere('barcode', 'like', '%'.$this->search.'%')
                         ->orWhere('name', 'like', '%'.$this->search.'%');
                 });
             })

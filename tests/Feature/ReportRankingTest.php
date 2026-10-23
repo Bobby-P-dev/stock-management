@@ -107,9 +107,9 @@ class ReportRankingTest extends TestCase
                 'note' => 'Pasokan pertama',
             ],
             [
-                ['product_id' => $this->productFast->id, 'quantity' => 100],
-                ['product_id' => $this->productMedium->id, 'quantity' => 40],
-                ['product_id' => $this->productSlow->id, 'quantity' => 10],
+                ['product_id' => $this->productFast->id, 'quantity' => 100, 'unit_price' => 50000],
+                ['product_id' => $this->productMedium->id, 'quantity' => 40, 'unit_price' => 25000],
+                ['product_id' => $this->productSlow->id, 'quantity' => 10, 'unit_price' => 10000],
             ],
             $this->admin->id
         );
@@ -193,5 +193,19 @@ class ReportRankingTest extends TestCase
         $this->assertStringContainsString('LAPORAN POSISI STOK & RANKING PERPUTARAN BARANG', $content);
         $this->assertStringContainsString('Fast Moving', $content);
         $this->assertStringContainsString('PRD-FAST-01', $content);
+        $this->assertStringContainsString('Valuasi Aset', $content);
+    }
+
+    public function test_inventory_valuation_is_calculated_and_rendered(): void
+    {
+        $analysis = $this->stockService->getProductsWithMovementAnalysis();
+        $this->assertArrayHasKey('total_valuation', $analysis['summary']);
+        $this->assertGreaterThan(0, $analysis['summary']['total_valuation']);
+
+        Livewire::actingAs($this->admin)
+            ->test(ReportIndex::class)
+            ->set('activeTab', 'stock')
+            ->assertSee('Valuasi Aset Gudang')
+            ->assertSee('Valuasi Aset');
     }
 }

@@ -163,4 +163,54 @@ class StockOutTest extends TestCase
             'note' => 'Pembelian ATK pribadi',
         ]);
     }
+
+    public function test_stock_out_barcode_scanning_combined_modes(): void
+    {
+        $this->product1->update(['barcode' => '899333111222']);
+
+        $component = Livewire::actingAs($this->admin)->test(StockOutCreate::class);
+
+        // Scan once: item added with qty = 1
+        $component->call('handleBarcodeScan', '899333111222');
+        $this->assertEquals($this->product1->id, $component->get('items.0.product_id'));
+        $this->assertEquals(1, $component->get('items.0.quantity'));
+
+        // Scan again: qty increments to 2
+        $component->call('handleBarcodeScan', '899333111222');
+        $this->assertEquals(2, $component->get('items.0.quantity'));
+
+        // Scan 3rd time: qty increments to 3
+        $component->call('handleBarcodeScan', '899333111222');
+        $this->assertEquals(3, $component->get('items.0.quantity'));
+
+        // Manual edit works
+        $component->set('items.0.quantity', 5);
+        $this->assertEquals(5, $component->get('items.0.quantity'));
+    }
+
+    public function test_stock_out_rejects_unregistered_or_out_of_stock_barcode(): void
+    {
+        $zeroStockProduct = Product::create([
+            'sku' => 'PRD-ZERO-01',
+            'barcode' => '888000111222',
+            'name' => 'Barang Kosong',
+            'category_id' => $this->product1->category_id,
+            'unit_id' => $this->product1->unit_id,
+            'minimum_stock' => 5,
+            'current_stock' => 0,
+            'is_active' => true,
+        ]);
+
+        $component = Livewire::actingAs($this->admin)->test(StockOutCreate::class);
+
+        // 1. Unregistered barcode
+        $component->call('handleBarcodeScan', '999999999999');
+        $component->assertDispatched('swal');
+        $this->assertEmpty($component->get('items.0.product_id'));
+
+        // 2. Barcode with 0 stock
+        $component->call('handleBarcodeScan', '888000111222');
+        $component->assertDispatched('swal');
+        $this->assertEmpty($component->get('items.0.product_id'));
+    }
 }

@@ -10,6 +10,7 @@ use App\Livewire\Opnames\StockOpnameIndex;
 use App\Livewire\Opnames\StockOpnameShow;
 use App\Livewire\Products\ProductIndex;
 use App\Livewire\Reports\ReportIndex;
+use App\Livewire\Scanner\RemoteScanner;
 use App\Livewire\StockCard;
 use App\Livewire\Suppliers\SupplierIndex;
 use App\Livewire\Transactions\StockInCreate;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/login', Login::class)->name('login');
+Route::get('/scanner/{token}', RemoteScanner::class)->name('scanner.remote');
 
 Route::post('/logout', function (Request $request) {
     Auth::logout();

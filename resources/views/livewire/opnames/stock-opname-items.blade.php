@@ -10,19 +10,58 @@
             </div>
         </div>
 
-        <x-ui.button
-            wire:click="addItem"
-            type="button"
-            variant="secondary"
-            size="sm"
-            loadingTarget="addItem"
-            class="self-start sm:self-auto"
-        >
-            <x-slot:icon>
-                <x-heroicon-o-plus class="w-3.5 h-3.5 stroke-[2.5] mr-1.5" />
-            </x-slot:icon>
-            Tambah Baris Barang
-        </x-ui.button>
+        <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            @if(isset($pairingConnected) && $pairingConnected)
+                <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold shadow-2xs">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span>HP Terhubung</span>
+                    <button
+                        type="button"
+                        wire:click="openPairing"
+                        class="text-[11px] underline text-emerald-800 hover:text-emerald-950 font-medium ml-1"
+                    >
+                        Info
+                    </button>
+                </div>
+            @elseif(isset($pairingToken))
+                <x-ui.button
+                    type="button"
+                    wire:click="openPairing"
+                    variant="secondary"
+                    size="sm"
+                    title="Jadikan kamera smartphone sebagai barcode scanner nirkabel"
+                    class="border-indigo-200 text-indigo-700 hover:bg-indigo-50/80 hover:border-indigo-300"
+                >
+                    <x-slot:icon>
+                        <x-heroicon-o-device-phone-mobile class="w-4 h-4 text-indigo-600 shrink-0" />
+                    </x-slot:icon>
+                    <span>Scan via HP</span>
+                </x-ui.button>
+            @endif
+
+            <x-barcode-scanner
+                onScan="handleBarcodeScan"
+                buttonLabel="Kamera"
+                buttonVariant="outline"
+                buttonSize="sm"
+            />
+
+            <x-ui.button
+                wire:click="addItem"
+                type="button"
+                variant="secondary"
+                size="sm"
+                loadingTarget="addItem"
+            >
+                <x-slot:icon>
+                    <x-heroicon-o-plus class="w-3.5 h-3.5 stroke-[2.5] mr-1.5" />
+                </x-slot:icon>
+                Tambah Baris Barang
+            </x-ui.button>
+        </div>
     </div>
 
     @error('items')

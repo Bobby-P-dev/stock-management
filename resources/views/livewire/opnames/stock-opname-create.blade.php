@@ -1,4 +1,4 @@
-<div class="space-y-6 min-w-0">
+<div class="space-y-6 min-w-0" @if($pairingToken !== '') wire:poll.1000ms="checkRemoteScanner" @endif>
     <!-- Header Page -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
         <div class="flex items-start gap-3">
@@ -112,4 +112,12 @@
             </x-ui.button>
         </div>
     </form>
+
+    {{-- Scanner Pairing Modal (Laptop <-> HP) --}}
+    <x-scanner-pairing-modal
+        :open="$showPairingModal"
+        :token="$pairingToken"
+        :connected="$pairingConnected"
+        :deviceName="$pairingDeviceName"
+    />
 </div>

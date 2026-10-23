@@ -29,8 +29,19 @@
         </div>
     </div>
 
-    {{-- Statistics Overview (4 KPI Cards) --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+    {{-- Statistics Overview (5 KPI Cards with Asset Valuation) --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <x-kpi-card
+            label="Valuasi Aset Gudang"
+            :value="'Rp ' . number_format($stats['total_inventory_valuation'] ?? 0, 0, ',', '.')"
+            description="Estimasi total modal barang fisik"
+            tone="emerald"
+        >
+            <x-slot:icon>
+                <x-heroicon-o-banknotes class="w-4 h-4" />
+            </x-slot:icon>
+        </x-kpi-card>
+
         <x-kpi-card
             label="Total Jenis Barang"
             :value="$stats['total_products']"

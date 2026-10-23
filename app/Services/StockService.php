@@ -566,6 +566,21 @@ class StockService
             ->limit(5)
             ->get();
 
+        $latestPrices = StockTransactionItem::whereHas('stockTransaction', fn ($t) => $t->where('type', 'IN'))
+            ->whereNotNull('unit_price')
+            ->where('unit_price', '>', 0)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->unique('product_id')
+            ->pluck('unit_price', 'product_id');
+
+        $activeProductsList = Product::active()->get(['id', 'current_stock']);
+        $totalInventoryValuation = (float) $activeProductsList->sum(function (Product $p) use ($latestPrices) {
+            $price = (float) ($latestPrices[$p->id] ?? 0);
+
+            return $p->current_stock * $price;
+        });
+
         return [
             'total_products' => $totalProducts,
             'active_products' => $activeProducts,
@@ -575,6 +590,7 @@ class StockService
             'stock_out_today' => $totalStockOutToday,
             'recent_transactions' => $recentTransactions,
             'low_stock_items' => $lowStockItems,
+            'total_inventory_valuation' => $totalInventoryValuation,
         ];
     }
 
@@ -630,6 +646,8 @@ class StockService
      *     products: Collection<int, Product>,
      *     summary: array{
      *         total_products: int,
+     *         total_units: int,
+     *         total_valuation: float,
      *         fast_moving: int,
      *         medium_moving: int,
      *         slow_moving: int,
@@ -672,11 +690,23 @@ class StockService
             }])
             ->get();
 
-        $products->each(function (Product $p) {
+        $latestPrices = StockTransactionItem::whereHas('stockTransaction', fn ($t) => $t->where('type', 'IN'))
+            ->whereNotNull('unit_price')
+            ->where('unit_price', '>', 0)
+            ->orderBy('id', 'desc')
+            ->get()
+            ->unique('product_id')
+            ->pluck('unit_price', 'product_id');
+
+        $products->each(function (Product $p) use ($latestPrices) {
             $p->total_in = (int) ($p->total_in ?? 0);
             $p->total_out = (int) ($p->total_out ?? 0);
             $p->total_movement = $p->total_in + $p->total_out;
             $p->tx_count = (int) ($p->tx_count ?? 0);
+
+            $price = (float) ($latestPrices[$p->id] ?? 0);
+            $p->latest_unit_price = $price;
+            $p->stock_valuation = (float) ($p->current_stock * $price);
         });
 
         $movingProducts = $products->filter(fn (Product $p) => $p->total_movement > 0)
@@ -709,6 +739,8 @@ class StockService
 
         $summary = [
             'total_products' => $products->count(),
+            'total_units' => (int) $products->sum('current_stock'),
+            'total_valuation' => (float) $products->sum('stock_valuation'),
             'fast_moving' => $products->where('velocity_status', 'FAST_MOVING')->count(),
             'medium_moving' => $products->where('velocity_status', 'MEDIUM_MOVING')->count(),
             'slow_moving' => $products->where('velocity_status', 'SLOW_MOVING')->count(),
@@ -716,6 +748,8 @@ class StockService
         ];
 
         $sorted = match ($sortBy) {
+            'valuation_desc' => $products->sortByDesc('stock_valuation'),
+            'valuation_asc' => $products->sortBy('stock_valuation'),
             'most_sold' => $products->sort(function (Product $a, Product $b) {
                 if ($b->total_out === $a->total_out) {
                     return $b->total_movement <=> $a->total_movement;

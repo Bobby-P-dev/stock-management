@@ -4,6 +4,7 @@
     'href' => null,
     'type' => 'button',
     'loadingTarget' => null,
+    'loadingText' => null,
 ])
 
 @php
@@ -67,6 +68,15 @@
             </span>
         @endif
 
-        {{ $slot }}
+        @if ($loadingTarget && $loadingText)
+            <span wire:loading.remove wire:target="{{ $loadingTarget }}">
+                {{ $slot }}
+            </span>
+            <span wire:loading wire:target="{{ $loadingTarget }}">
+                {{ $loadingText }}
+            </span>
+        @else
+            {{ $slot }}
+        @endif
     </button>
 @endif

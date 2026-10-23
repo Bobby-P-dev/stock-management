@@ -11,6 +11,10 @@
         ></div>
     @endif
 
+    @if (isset($header))
+        {{ $header }}
+    @endif
+
     <div class="overflow-x-auto">
         <table class="w-full text-left text-xs">
             @if (isset($head))
@@ -27,6 +31,12 @@
             >
                 {{ $slot }}
             </tbody>
+
+            @if (isset($tfoot))
+                <tfoot>
+                    {{ $tfoot }}
+                </tfoot>
+            @endif
         </table>
     </div>
 

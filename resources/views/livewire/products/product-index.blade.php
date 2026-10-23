@@ -29,7 +29,7 @@
                     id="product-search"
                     label="Pencarian Barang"
                     wire:model.live.debounce.300ms="search"
-                    placeholder="Cari SKU atau nama barang..."
+                    placeholder="Cari SKU, barcode, atau nama barang..."
                     :showClear="$search !== ''"
                     clearAction="$set('search', '')"
                 >
@@ -86,7 +86,7 @@
     {{-- Inventory Data Table --}}
     <x-ui.table loadingTarget="search,selectedCategory,stockStatusFilter,gotoPage,previousPage,nextPage,delete,toggleActive">
         <x-slot:head>
-            <x-ui.th class="whitespace-nowrap">SKU</x-ui.th>
+            <x-ui.th class="whitespace-nowrap">SKU / Barcode</x-ui.th>
             <x-ui.th>Nama Barang</x-ui.th>
             <x-ui.th class="whitespace-nowrap">Kategori</x-ui.th>
             <x-ui.th align="right" class="whitespace-nowrap">Stok Terkini</x-ui.th>
@@ -97,11 +97,19 @@
 
         @forelse($products as $product)
             <x-ui.tr wire:key="product-row-{{ $product->id }}">
-                {{-- SKU --}}
+                {{-- SKU & Barcode --}}
                 <x-ui.td class="whitespace-nowrap">
-                    <x-ui.badge variant="mono" size="code">
-                        {{ $product->sku }}
-                    </x-ui.badge>
+                    <div class="flex flex-col gap-1 items-start">
+                        <x-ui.badge variant="mono" size="code">
+                            {{ $product->sku }}
+                        </x-ui.badge>
+                        @if($product->barcode)
+                            <span class="inline-flex items-center gap-1 text-[11px] font-mono text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200/70" title="Barcode Pabrik">
+                                <x-heroicon-o-qr-code class="w-3 h-3 text-slate-400 shrink-0" />
+                                <span>{{ $product->barcode }}</span>
+                            </span>
+                        @endif
+                    </div>
                 </x-ui.td>
 
                 {{-- Nama Barang --}}
@@ -287,12 +295,12 @@
         wire:key="product-modal-{{ $editingProductId ?? 'create' }}"
     >
         <div class="space-y-4 sm:space-y-5">
-            {{-- Row 1: Kode SKU & Batas Stok Minimum --}}
+            {{-- Row 1: Kode SKU & Barcode Pabrik --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-ui.input
                     id="modal_sku"
                     name="sku"
-                    label="Kode SKU"
+                    label="Kode SKU (Internal)"
                     wire:model="sku"
                     type="text"
                     placeholder="Contoh: PRD-001"
@@ -300,15 +308,17 @@
                 />
 
                 <x-ui.input
-                    id="modal_minimum_stock"
-                    name="minimum_stock"
-                    label="Batas Stok Minimum"
-                    wire:model="minimum_stock"
-                    type="number"
-                    min="0"
-                    placeholder="0"
-                    required
-                />
+                    id="modal_barcode"
+                    name="barcode"
+                    label="Barcode Pabrik / EAN (Opsional)"
+                    wire:model="barcode"
+                    type="text"
+                    placeholder="Contoh: 8992388101011"
+                >
+                    <x-slot:icon>
+                        <x-heroicon-o-qr-code class="w-4 h-4 text-slate-400" />
+                    </x-slot:icon>
+                </x-ui.input>
             </div>
 
             {{-- Row 2: Nama Barang (Full Width) --}}
@@ -318,12 +328,12 @@
                 label="Nama Barang"
                 wire:model="name"
                 type="text"
-                placeholder="Contoh: Kabel UTP Cat6 305M"
+                placeholder="Contoh: Indomie Goreng Spesial 85g"
                 required
             />
 
-            {{-- Row 3: Kategori & Satuan --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {{-- Row 3: Kategori, Satuan & Batas Stok Minimum --}}
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <x-searchable-select
                     id="modal_category_id"
                     name="category_id"
@@ -346,6 +356,17 @@
                     searchPlaceholder="Cari satuan..."
                     :required="true"
                     :dropUp="true"
+                />
+
+                <x-ui.input
+                    id="modal_minimum_stock"
+                    name="minimum_stock"
+                    label="Batas Minimum"
+                    wire:model="minimum_stock"
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    required
                 />
             </div>
 

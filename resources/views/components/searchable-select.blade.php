@@ -32,6 +32,9 @@
             $value = $item->id ?? $item->value ?? $key;
             if (isset($item->sku, $item->name)) {
                 $label = $item->sku . ' - ' . $item->name;
+                if (! empty($item->barcode)) {
+                    $label .= " [{$item->barcode}]";
+                }
                 if (isset($item->current_stock, $item->unit->symbol)) {
                     $label .= " (Sisa: {$item->current_stock} {$item->unit->symbol})";
                 } elseif (isset($item->unit->symbol)) {

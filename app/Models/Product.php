@@ -17,6 +17,7 @@ class Product extends Model
      */
     protected $fillable = [
         'sku',
+        'barcode',
         'name',
         'category_id',
         'unit_id',
@@ -118,5 +119,30 @@ class Product extends Model
             'SLOW_MOVING' => 'Slow Moving',
             default => 'Non-Moving',
         };
+    }
+
+    public function getLatestUnitPriceAttribute(): float
+    {
+        if (isset($this->attributes['latest_unit_price'])) {
+            return (float) $this->attributes['latest_unit_price'];
+        }
+
+        $latestItem = $this->transactionItems()
+            ->whereHas('stockTransaction', fn ($t) => $t->where('type', 'IN'))
+            ->whereNotNull('unit_price')
+            ->where('unit_price', '>', 0)
+            ->latest('id')
+            ->first();
+
+        return $latestItem ? (float) $latestItem->unit_price : 0.0;
+    }
+
+    public function getStockValuationAttribute(): float
+    {
+        if (isset($this->attributes['stock_valuation'])) {
+            return (float) $this->attributes['stock_valuation'];
+        }
+
+        return (float) ($this->current_stock * $this->latest_unit_price);
     }
 }

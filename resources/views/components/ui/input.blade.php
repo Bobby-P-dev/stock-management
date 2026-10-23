@@ -6,6 +6,7 @@
     'error' => null,
     'hint' => null,
     'required' => false,
+    'showRequiredIndicator' => null,
     'clearAction' => null,
     'showClear' => false,
 ])
@@ -26,7 +27,7 @@
 
 <div class="w-full">
     @if ($label)
-        <x-ui.label :for="$inputId" :required="$required">
+        <x-ui.label :for="$inputId" :required="$showRequiredIndicator ?? $required">
             {{ $label }}
         </x-ui.label>
     @endif

@@ -159,4 +159,61 @@ class StockInTest extends TestCase
             'note' => 'Penerimaan surat jalan #SJ-8899',
         ]);
     }
+
+    public function test_stock_in_barcode_scanning_combined_modes(): void
+    {
+        $this->product1->update(['barcode' => '8992388101011']);
+
+        $component = Livewire::actingAs($this->admin)->test(StockInCreate::class);
+
+        // Scan once: item added with qty = 1
+        $component->call('handleBarcodeScan', '8992388101011');
+        $this->assertEquals($this->product1->id, $component->get('items.0.product_id'));
+        $this->assertEquals(1, $component->get('items.0.quantity'));
+
+        // Scan same barcode again: qty automatically increments (+1) to 2
+        $component->call('handleBarcodeScan', '8992388101011');
+        $this->assertEquals(2, $component->get('items.0.quantity'));
+
+        // Scan third time: qty becomes 3
+        $component->call('handleBarcodeScan', '8992388101011');
+        $this->assertEquals(3, $component->get('items.0.quantity'));
+
+        // User can still freely edit qty manually (e.g. 50)
+        $component->set('items.0.quantity', 50);
+        $this->assertEquals(50, $component->get('items.0.quantity'));
+    }
+
+    public function test_stock_in_unregistered_barcode_prompts_quick_product_modal(): void
+    {
+        $category = Category::first();
+        $unit = Unit::first();
+
+        $component = Livewire::actingAs($this->admin)->test(StockInCreate::class);
+
+        // Scan unknown barcode
+        $component->call('handleBarcodeScan', '777888999111');
+
+        $component->assertSet('showQuickProductModal', true)
+            ->assertSet('quickBarcode', '777888999111');
+
+        // Fill and save quick product
+        $component
+            ->set('quickSku', 'PRD-SNACK-99')
+            ->set('quickName', 'Keripik Singkong Balado')
+            ->set('quickCategoryId', $category->id)
+            ->set('quickUnitId', $unit->id)
+            ->set('quickMinStock', 10)
+            ->call('saveQuickProduct')
+            ->assertHasNoErrors()
+            ->assertSet('showQuickProductModal', false);
+
+        $newProduct = Product::where('barcode', '777888999111')->first();
+        $this->assertNotNull($newProduct);
+        $this->assertEquals('Keripik Singkong Balado', $newProduct->name);
+
+        // Check it's added into transaction items directly
+        $this->assertEquals($newProduct->id, $component->get('items.0.product_id'));
+        $this->assertEquals(1, $component->get('items.0.quantity'));
+    }
 }

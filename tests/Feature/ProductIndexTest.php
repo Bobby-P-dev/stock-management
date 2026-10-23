@@ -253,4 +253,80 @@ class ProductIndexTest extends TestCase
             'is_active' => true,
         ]);
     }
+
+    public function test_product_barcode_support_search_and_uniqueness(): void
+    {
+        $component = Livewire::actingAs($this->admin)->test(ProductIndex::class);
+
+        // 1. Create product with barcode
+        $component
+            ->call('create')
+            ->set('sku', 'PRD-NOODLE-01')
+            ->set('barcode', '8992388101011')
+            ->set('name', 'Mie Instan Goreng Spesial')
+            ->set('category_id', $this->categoryA->id)
+            ->set('unit_id', $this->unit->id)
+            ->set('minimum_stock', 24)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('showModal', false);
+
+        $this->assertDatabaseHas('products', [
+            'sku' => 'PRD-NOODLE-01',
+            'barcode' => '8992388101011',
+            'name' => 'Mie Instan Goreng Spesial',
+        ]);
+
+        // 2. Search by barcode finds the product
+        $component
+            ->set('search', '8992388101011')
+            ->assertSee('Mie Instan Goreng Spesial')
+            ->assertSee('8992388101011');
+
+        // 3. Search with non-matching code returns empty
+        $component
+            ->set('search', '9999999999999')
+            ->assertDontSee('Mie Instan Goreng Spesial');
+
+        // 4. Duplicate barcode validation fails
+        $component
+            ->call('create')
+            ->set('sku', 'PRD-NOODLE-02')
+            ->set('barcode', '8992388101011')
+            ->set('name', 'Mie Instan Kuah Soto')
+            ->set('category_id', $this->categoryA->id)
+            ->set('unit_id', $this->unit->id)
+            ->call('save')
+            ->assertHasErrors(['barcode']);
+
+        // 5. Creating product without barcode (empty string) saves as null and does not cause duplicate key error
+        $component
+            ->call('create')
+            ->set('sku', 'PRD-NOODLE-EMPTY-1')
+            ->set('barcode', '')
+            ->set('name', 'Barang Tanpa Barcode 1')
+            ->set('category_id', $this->categoryA->id)
+            ->set('unit_id', $this->unit->id)
+            ->call('save')
+            ->assertHasNoErrors(['barcode']);
+
+        $component
+            ->call('create')
+            ->set('sku', 'PRD-NOODLE-EMPTY-2')
+            ->set('barcode', '')
+            ->set('name', 'Barang Tanpa Barcode 2')
+            ->set('category_id', $this->categoryA->id)
+            ->set('unit_id', $this->unit->id)
+            ->call('save')
+            ->assertHasNoErrors(['barcode']);
+
+        $this->assertDatabaseHas('products', [
+            'sku' => 'PRD-NOODLE-EMPTY-1',
+            'barcode' => null,
+        ]);
+        $this->assertDatabaseHas('products', [
+            'sku' => 'PRD-NOODLE-EMPTY-2',
+            'barcode' => null,
+        ]);
+    }
 }

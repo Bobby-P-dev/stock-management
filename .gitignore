@@ -35,3 +35,7 @@ claude.md
 /.agents/
 /.claude/
 /.ai/
+
+# Local Scratch & Verification Files
+/scratch/
+scratch/
