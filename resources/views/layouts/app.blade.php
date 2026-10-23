@@ -404,6 +404,22 @@
         ></div>
         @endif
 
+        {{-- Real-time Offline Network Indicator --}}
+        <div
+            wire:offline
+            class="fixed bottom-4 right-4 z-50 max-w-sm bg-slate-900/95 text-white p-3.5 rounded-xl shadow-xl border border-slate-700/60 backdrop-blur-sm flex items-center gap-3"
+        >
+            <div class="w-8 h-8 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center shrink-0">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 7.5h.008v.008H12v-.008Z" />
+                </svg>
+            </div>
+            <div class="text-xs">
+                <p class="font-bold text-white">Koneksi Terputus</p>
+                <p class="text-slate-300 text-[11px] mt-0.5">Sistem akan menyinkronkan data kembali saat online.</p>
+            </div>
+        </div>
+
         @livewireScripts
     </body>
 </html>

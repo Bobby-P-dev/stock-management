@@ -25,6 +25,14 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/login', Login::class)->name('login');
 Route::get('/scanner/{token}', RemoteScanner::class)->name('scanner.remote');
+Route::view('/offline', 'errors.offline')->name('offline');
+
+if (app()->environment('local', 'testing')) {
+    Route::view('/test-errors/404', 'errors.404');
+    Route::view('/test-errors/403', 'errors.403');
+    Route::view('/test-errors/500', 'errors.500');
+    Route::view('/test-errors/503', 'errors.503');
+}
 
 Route::post('/logout', function (Request $request) {
     Auth::logout();
