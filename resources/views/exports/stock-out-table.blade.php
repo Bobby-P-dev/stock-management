@@ -71,7 +71,7 @@
                         <td class="text-center">{{ $rowNo++ }}</td>
                         <td class="text-doc">{{ $tx->transaction_no }}</td>
                         <td class="text-center">{{ $tx->transaction_date->format('d/m/Y') }}</td>
-                        <td style="font-weight: 500;">{{ $tx->recipient }}</td>
+                        <td style="font-weight: 500;">{{ $tx->recipient ?? '-' }}</td>
                         <td class="text-sku">{{ $item->product->sku ?? '-' }}</td>
                         <td>{{ $item->product->name ?? '-' }}</td>
                         <td class="text-right" style="font-weight: bold; color: #dc2626;">{{ number_format($item->quantity, 0, ',', '.') }}</td>

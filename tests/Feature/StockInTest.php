@@ -111,10 +111,38 @@ class StockInTest extends TestCase
             ->set('items.0.quantity', 0)
             ->call('save')
             ->assertHasErrors([
-                'supplier_id' => 'required',
                 'items.0.product_id' => 'required',
                 'items.0.quantity' => 'min',
-            ]);
+            ])
+            ->assertHasNoErrors(['supplier_id']);
+    }
+
+    public function test_can_save_stock_in_without_supplier_and_without_unit_price(): void
+    {
+        Livewire::actingAs($this->admin)
+            ->test(StockInCreate::class)
+            ->set('transaction_date', now()->toDateString())
+            ->set('supplier_id', null)
+            ->set('note', 'Penerimaan tanpa supplier')
+            ->set('items.0.product_id', $this->product1->id)
+            ->set('items.0.quantity', 10)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSessionHas('success');
+
+        $this->assertEquals(20, $this->product1->fresh()->current_stock);
+
+        $this->assertDatabaseHas('stock_transactions', [
+            'type' => 'IN',
+            'supplier_id' => null,
+            'note' => 'Penerimaan tanpa supplier',
+        ]);
+
+        $this->assertDatabaseHas('stock_transaction_items', [
+            'product_id' => $this->product1->id,
+            'quantity' => 10,
+            'unit_price' => null,
+        ]);
     }
 
     public function test_prevents_duplicate_products_in_form(): void

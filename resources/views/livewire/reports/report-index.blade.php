@@ -627,7 +627,7 @@
                     {{ $tx->transaction_date->format('d/m/Y') }}
                 </x-ui.td>
                 <x-ui.td class="font-medium text-slate-900 print:text-black print:text-[8.5pt]">
-                    {{ $tx->recipient }}
+                    {{ $tx->recipient ?? '-' }}
                 </x-ui.td>
                 <x-ui.td class="text-slate-600 print:text-black print:text-[8.5pt]">
                     <ul class="space-y-1">

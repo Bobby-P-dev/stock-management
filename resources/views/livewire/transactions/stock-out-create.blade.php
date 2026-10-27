@@ -67,8 +67,8 @@
                         wire:model="recipient"
                         label="Nama Penerima"
                         type="text"
-                        :required="true"
-                        placeholder="Contoh: Bpk. Ahmad / Pelanggan"
+                        :required="false"
+                        placeholder="Contoh: Bpk. Ahmad / Pelanggan (Opsional)"
                     />
                 </div>
 

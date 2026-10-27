@@ -26,7 +26,7 @@ class StockInCreate extends Component
 
     public string $note = '';
 
-    /** @var list<array{product_id: int|string, quantity: int, unit_price: float|int|string}> */
+    /** @var list<array{product_id: int|string, quantity: int}> */
     public array $items = [];
 
     // Quick Product Registration (Just-In-Time)
@@ -61,7 +61,6 @@ class StockInCreate extends Component
         $this->items[] = [
             'product_id' => '',
             'quantity' => 1,
-            'unit_price' => '',
         ];
     }
 
@@ -79,14 +78,12 @@ class StockInCreate extends Component
 
         $this->validate([
             'transaction_date' => ['required', 'date'],
-            'supplier_id' => ['required', 'exists:suppliers,id'],
+            'supplier_id' => ['nullable', 'exists:suppliers,id'],
             'note' => ['nullable', 'string', 'max:500'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'exists:products,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
-            'items.*.unit_price' => ['nullable', 'numeric', 'min:0'],
         ], [
-            'supplier_id.required' => 'Supplier wajib dipilih.',
             'items.*.product_id.required' => 'Barang wajib dipilih.',
             'items.*.quantity.min' => 'Kuantitas minimal 1 unit.',
         ]);
@@ -109,7 +106,7 @@ class StockInCreate extends Component
             return [
                 'product_id' => (int) $item['product_id'],
                 'quantity' => (int) $item['quantity'],
-                'unit_price' => ! empty($item['unit_price']) ? (float) $item['unit_price'] : null,
+                'unit_price' => null,
             ];
         }, $this->items);
 
@@ -132,7 +129,7 @@ class StockInCreate extends Component
             $this->note = '';
             $this->transaction_date = Carbon::today()->toDateString();
             $this->items = [
-                ['product_id' => '', 'quantity' => 1, 'unit_price' => ''],
+                ['product_id' => '', 'quantity' => 1],
             ];
 
             $this->dispatch('swal', [
@@ -203,7 +200,6 @@ class StockInCreate extends Component
                     $this->items[] = [
                         'product_id' => $product->id,
                         'quantity' => 1,
-                        'unit_price' => '',
                     ];
                 }
 
@@ -278,7 +274,6 @@ class StockInCreate extends Component
             $this->items[] = [
                 'product_id' => $product->id,
                 'quantity' => 1,
-                'unit_price' => '',
             ];
         }
 

@@ -109,7 +109,7 @@ class DashboardTest extends TestCase
             ->assertSee(route('transactions.index'))
             ->assertSee(route('stock-card', ['productId' => $zeroStockProduct->id]))
             ->assertSee(route('transactions.show', $tx->id))
-            ->assertSee('Valuasi Aset Gudang')
+            ->assertDontSee('Valuasi Aset Gudang')
             ->assertSee('Total Jenis Barang')
             ->assertSee('Barang Perlu Restock')
             ->assertSee('Barang Masuk Hari Ini')

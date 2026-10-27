@@ -65,9 +65,9 @@
                     <x-searchable-select
                         wire:model="supplier_id"
                         label="Mitra Supplier"
-                        :required="true"
+                        :required="false"
                         :options="$suppliers"
-                        placeholder="Pilih Supplier Pengirim"
+                        placeholder="Pilih Supplier Pengirim (Opsional)"
                         searchPlaceholder="Cari nama atau kode supplier..."
                     />
                 </div>
@@ -158,9 +158,8 @@
                     <thead class="hidden md:table-header-group">
                         <tr class="text-slate-600 border-b border-slate-200/80 uppercase tracking-wider text-[11px] bg-slate-50/70">
                             <th class="py-3 px-3 text-center w-12 font-semibold">No</th>
-                            <th class="py-3 px-3 font-semibold min-w-[260px]">Barang Diterima <span class="text-rose-500 normal-case">*</span></th>
-                            <th class="py-3 px-3 font-semibold w-40 sm:w-48">Kuantitas Masuk <span class="text-rose-500 normal-case">*</span></th>
-                            <th class="py-3 px-3 font-semibold w-48 sm:w-56">Harga Satuan (Rp)</th>
+                            <th class="py-3 px-3 font-semibold min-w-[280px]">Barang Diterima <span class="text-rose-500 normal-case">*</span></th>
+                            <th class="py-3 px-3 font-semibold w-48 sm:w-60">Kuantitas Masuk <span class="text-rose-500 normal-case">*</span></th>
                             <th class="py-3 px-3 font-semibold text-center w-16">Aksi</th>
                         </tr>
                     </thead>
@@ -169,10 +168,10 @@
                         <tr
                             wire:key="stock-in-row-{{ $index }}"
                             style="z-index: {{ 50 - $index }};"
-                            class="relative grid grid-cols-2 gap-3 p-4 bg-slate-50/60 md:bg-transparent border border-slate-200/80 md:border-0 rounded-2xl md:rounded-none md:p-0 md:table-row hover:bg-slate-50/40 transition shadow-2xs md:shadow-none"
+                            class="relative grid grid-cols-1 gap-3 p-4 bg-slate-50/60 md:bg-transparent border border-slate-200/80 md:border-0 rounded-2xl md:rounded-none md:p-0 md:table-row hover:bg-slate-50/40 transition shadow-2xs md:shadow-none"
                         >
                             {{-- Col 1: Nomor / Card Header on Mobile --}}
-                            <td class="col-span-2 md:col-auto md:table-cell p-0 md:py-3 md:px-3 text-slate-500 font-mono align-top md:pt-4">
+                            <td class="md:table-cell p-0 md:py-3 md:px-3 text-slate-500 font-mono align-top md:pt-4">
                                 {{-- Mobile Header: "Barang #1" with space on right for remove button --}}
                                 <div class="flex items-center justify-between pb-2.5 mb-1 border-b border-slate-200/70 md:hidden pr-9">
                                     <span class="text-xs font-bold text-slate-800 tracking-tight font-sans">
@@ -186,8 +185,8 @@
                                 </span>
                             </td>
 
-                            {{-- Col 2: Barang Diterima (Full Width on Mobile) --}}
-                            <td class="col-span-2 md:col-auto md:table-cell p-0 md:py-3 md:px-3 align-top min-w-0">
+                            {{-- Col 2: Barang Diterima --}}
+                            <td class="md:table-cell p-0 md:py-3 md:px-3 align-top min-w-0">
                                 <label class="block md:hidden text-xs font-semibold text-slate-700 mb-1.5 font-sans">
                                     Barang Diterima <span class="text-rose-500">*</span>
                                 </label>
@@ -203,8 +202,8 @@
                                 @enderror
                             </td>
 
-                            {{-- Col 3: Kuantitas Masuk (Col 1 on Mobile) --}}
-                            <td class="col-span-1 md:col-auto md:table-cell p-0 md:py-3 md:px-3 align-top min-w-0">
+                            {{-- Col 3: Kuantitas Masuk --}}
+                            <td class="md:table-cell p-0 md:py-3 md:px-3 align-top min-w-0">
                                 <label class="block md:hidden text-xs font-semibold text-slate-700 mb-1.5 font-sans">
                                     Kuantitas Masuk <span class="text-rose-500">*</span>
                                 </label>
@@ -220,29 +219,8 @@
                                 @enderror
                             </td>
 
-                            {{-- Col 4: Harga Satuan (Col 2 on Mobile) --}}
-                            <td class="col-span-1 md:col-auto md:table-cell p-0 md:py-3 md:px-3 align-top min-w-0">
-                                <label class="block md:hidden text-xs font-semibold text-slate-700 mb-1.5 font-sans">
-                                    Harga Satuan
-                                </label>
-                                <x-ui.input
-                                    wire:model="items.{{ $index }}.unit_price"
-                                    type="number"
-                                    min="0"
-                                    step="500"
-                                    placeholder="0"
-                                >
-                                    <x-slot:icon>
-                                        <span class="text-xs font-semibold text-slate-400">Rp</span>
-                                    </x-slot:icon>
-                                </x-ui.input>
-                                @error("items.{$index}.unit_price")
-                                    <span class="mt-1 text-[11px] font-medium text-rose-600 block">{{ $message }}</span>
-                                @enderror
-                            </td>
-
-                            {{-- Col 5: Aksi (Remove) --}}
-                            <td class="absolute top-3 right-3 md:static md:col-auto md:table-cell p-0 md:py-3 md:px-3 text-center align-top md:pt-3.5">
+                            {{-- Col 4: Aksi (Remove) --}}
+                            <td class="absolute top-3 right-3 md:static md:table-cell p-0 md:py-3 md:px-3 text-center align-top md:pt-3.5">
                                 @if(count($items) > 1)
                                 <button
                                     @click="window.SwalConfirm({

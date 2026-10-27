@@ -43,7 +43,7 @@ class StockService
                 'transaction_no' => $transactionNo,
                 'type' => 'IN',
                 'transaction_date' => $headerData['transaction_date'],
-                'supplier_id' => $headerData['supplier_id'],
+                'supplier_id' => $headerData['supplier_id'] ?? null,
                 'recipient' => null,
                 'note' => $headerData['note'] ?? null,
                 'created_by' => $userId,
@@ -84,7 +84,7 @@ class StockService
      *
      * @param array{
      *     transaction_date: string,
-     *     recipient: string,
+     *     recipient?: string|null,
      *     note?: string|null
      * } $headerData
      * @param list<array{
@@ -108,7 +108,7 @@ class StockService
                 'type' => 'OUT',
                 'transaction_date' => $headerData['transaction_date'],
                 'supplier_id' => null,
-                'recipient' => $headerData['recipient'],
+                'recipient' => $headerData['recipient'] ?? null,
                 'note' => $headerData['note'] ?? null,
                 'created_by' => $userId,
             ]);

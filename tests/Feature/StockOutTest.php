@@ -102,10 +102,32 @@ class StockOutTest extends TestCase
             ->set('items.0.quantity', 0)
             ->call('save')
             ->assertHasErrors([
-                'recipient' => 'required',
                 'items.0.product_id' => 'required',
                 'items.0.quantity' => 'min',
-            ]);
+            ])
+            ->assertHasNoErrors(['recipient']);
+    }
+
+    public function test_can_save_stock_out_transaction_without_recipient(): void
+    {
+        Livewire::actingAs($this->admin)
+            ->test(StockOutCreate::class)
+            ->set('transaction_date', now()->toDateString())
+            ->set('recipient', '')
+            ->set('note', 'Pengeluaran tanpa penerima')
+            ->set('items.0.product_id', $this->product1->id)
+            ->set('items.0.quantity', 5)
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSessionHas('success');
+
+        $this->assertEquals(15, $this->product1->fresh()->current_stock);
+
+        $this->assertDatabaseHas('stock_transactions', [
+            'type' => 'OUT',
+            'recipient' => null,
+            'note' => 'Pengeluaran tanpa penerima',
+        ]);
     }
 
     public function test_prevents_duplicate_products_in_form(): void

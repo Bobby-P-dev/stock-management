@@ -60,13 +60,12 @@ class StockOutCreate extends Component
 
         $this->validate([
             'transaction_date' => ['required', 'date'],
-            'recipient' => ['required', 'string', 'max:150'],
+            'recipient' => ['nullable', 'string', 'max:150'],
             'note' => ['nullable', 'string', 'max:500'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'exists:products,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
         ], [
-            'recipient.required' => 'Nama penerima barang keluar wajib diisi.',
             'items.*.product_id.required' => 'Barang wajib dipilih.',
             'items.*.quantity.min' => 'Kuantitas minimal 1 unit.',
         ]);
@@ -111,7 +110,7 @@ class StockOutCreate extends Component
         $tx = $stockService->recordStockOut(
             [
                 'transaction_date' => $this->transaction_date,
-                'recipient' => $this->recipient,
+                'recipient' => ! empty(trim((string) $this->recipient)) ? trim($this->recipient) : null,
                 'note' => $this->note,
             ],
             $formattedItems,
