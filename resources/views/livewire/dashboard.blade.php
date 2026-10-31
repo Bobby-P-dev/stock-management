@@ -30,7 +30,7 @@
     </div>
 
     {{-- Statistics Overview (4 KPI Cards) --}}
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <x-kpi-card
             label="Total Jenis Barang"
             :value="$stats['total_products']"

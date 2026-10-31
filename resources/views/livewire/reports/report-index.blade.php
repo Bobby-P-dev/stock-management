@@ -77,13 +77,13 @@
             </div>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+        <div class="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
             @if($activeTab === 'stock')
             <x-ui.button
                 href="{{ route('export.stock', ['category' => $stockCategory, 'status' => $stockStatus, 'sort_by' => $stockSortBy, 'velocity' => $stockVelocity, 'start_date' => $stockStartDate, 'end_date' => $stockEndDate]) }}"
                 variant="outline"
                 size="sm"
-                class="border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300"
+                class="w-full sm:w-auto justify-center border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300"
             >
                 <x-slot:icon>
                     <x-heroicon-o-arrow-down-tray class="w-4 h-4 text-emerald-600 mr-1.5" />
@@ -95,7 +95,7 @@
                 href="{{ route('export.stock-in', ['start_date' => $startDate, 'end_date' => $endDate, 'supplier_id' => $supplierId]) }}"
                 variant="outline"
                 size="sm"
-                class="border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300"
+                class="w-full sm:w-auto justify-center border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300"
             >
                 <x-slot:icon>
                     <x-heroicon-o-arrow-down-tray class="w-4 h-4 text-emerald-600 mr-1.5" />
@@ -107,7 +107,7 @@
                 href="{{ route('export.stock-out', ['start_date' => $startDate, 'end_date' => $endDate, 'recipient' => $recipient]) }}"
                 variant="outline"
                 size="sm"
-                class="border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300"
+                class="w-full sm:w-auto justify-center border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300"
             >
                 <x-slot:icon>
                     <x-heroicon-o-arrow-down-tray class="w-4 h-4 text-emerald-600 mr-1.5" />
@@ -121,6 +121,7 @@
                 onclick="window.print()"
                 variant="primary"
                 size="sm"
+                class="w-full sm:w-auto justify-center"
             >
                 <x-slot:icon>
                     <x-heroicon-o-printer class="w-4 h-4 mr-1.5" />
@@ -164,18 +165,20 @@
 
     @if($activeTab === 'stock')
     <div class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 print:hidden">
-            <x-kpi-card
-                label="Total Ragam Barang"
-                :value="$stockSummary['total_products']"
-                unit="SKU"
-                tone="blue"
-                :description="count($stockSummary['unit_totals'] ?? []) . ' ragam satuan terdaftar'"
-            >
-                <x-slot:icon>
-                    <x-heroicon-o-archive-box class="w-5 h-5" />
-                </x-slot:icon>
-            </x-kpi-card>
+        <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4 print:hidden">
+            <div class="col-span-2 sm:col-span-1 xl:col-span-1">
+                <x-kpi-card
+                    label="Total Ragam Barang"
+                    :value="$stockSummary['total_products']"
+                    unit="SKU"
+                    tone="blue"
+                    :description="count($stockSummary['unit_totals'] ?? []) . ' ragam satuan terdaftar'"
+                >
+                    <x-slot:icon>
+                        <x-heroicon-o-archive-box class="w-5 h-5" />
+                    </x-slot:icon>
+                </x-kpi-card>
+            </div>
 
             <x-kpi-card
                 label="Fast Moving (Paling Laku)"
@@ -346,6 +349,16 @@
             loadingTarget="stockSortBy,stockVelocity,stockCategory,stockStatus,stockStartDate,stockEndDate,setTab"
             class="bmi-report-table print:border-none print:shadow-none print:rounded-none [&>div]:print:overflow-visible"
         >
+            <x-slot:header>
+                <div class="sm:hidden px-3.5 py-2.5 bg-slate-50/90 border-b border-slate-200/80 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                    <span class="flex items-center gap-1.5">
+                        <x-heroicon-o-arrows-right-left class="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span>Geser tabel untuk melihat status & perputaran</span>
+                    </span>
+                    <span class="font-bold text-slate-700 font-mono shrink-0">{{ count($stockProducts) }} SKU</span>
+                </div>
+            </x-slot:header>
+
             <x-slot:head>
                 <x-ui.th align="center" class="w-10 print:w-[4%]">Rank</x-ui.th>
                 <x-ui.th class="w-24 print:w-[10%] whitespace-nowrap">SKU</x-ui.th>
@@ -435,7 +448,7 @@
             @endforelse
 
             <x-slot:tfoot>
-                <tr class="bg-slate-50/90 font-bold text-slate-800 border-t-2 border-slate-200 print:border-t print:border-slate-400">
+                <tr class="hidden sm:table-row print:table-row bg-slate-50/90 font-bold text-slate-800 border-t-2 border-slate-200 print:border-t print:border-slate-400">
                     <td colspan="4" class="py-3 px-3 text-right uppercase tracking-wider text-[11px] text-slate-600 print:text-black print:text-[8pt] align-middle">
                         Total Akumulasi (Per Satuan):
                     </td>
@@ -456,6 +469,29 @@
                     </td>
                 </tr>
             </x-slot:tfoot>
+
+            <x-slot:footer>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center justify-between sm:justify-start gap-2">
+                        <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px]">
+                            Total Akumulasi Terfilter (Per Satuan):
+                        </span>
+                        <span class="text-xs font-semibold text-slate-500">
+                            ({{ count($stockProducts) }} Jenis Barang)
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        @forelse($stockSummary['unit_totals'] ?? [] as $uSymbol => $uData)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-200/90 text-xs font-mono font-bold text-slate-900 shadow-2xs">
+                                <span>{{ number_format($uData['stock'], 0, ',', '.') }}</span>
+                                <span class="text-[10px] font-sans font-semibold text-slate-500 uppercase">{{ $uSymbol }}</span>
+                            </span>
+                        @empty
+                            <span class="text-xs text-slate-400 italic">Tidak ada data sesuai filter</span>
+                        @endforelse
+                    </div>
+                </div>
+            </x-slot:footer>
         </x-ui.table>
     </div>
     @endif
@@ -498,6 +534,16 @@
             loadingTarget="startDate,endDate,supplierId,setTab"
             class="bmi-report-table print:border-none print:shadow-none print:rounded-none [&>div]:print:overflow-visible"
         >
+            <x-slot:header>
+                <div class="sm:hidden px-3.5 py-2.5 bg-slate-50/90 border-b border-slate-200/80 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                    <span class="flex items-center gap-1.5">
+                        <x-heroicon-o-arrows-right-left class="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span>Geser tabel untuk melihat rincian barang</span>
+                    </span>
+                    <span class="font-bold text-slate-700 font-mono shrink-0">{{ count($stockInTransactions) }} Faktur</span>
+                </div>
+            </x-slot:header>
+
             <x-slot:head>
                 <x-ui.th class="w-44 print:w-[16%] whitespace-nowrap">No. Faktur</x-ui.th>
                 <x-ui.th class="w-28 print:w-[11%] whitespace-nowrap">Tanggal</x-ui.th>
@@ -555,7 +601,7 @@
 
             <x-slot:tfoot>
                 @if(count($stockInTransactions) > 0)
-                <tr class="border-t border-slate-200 print:border-gray-400 font-bold bg-slate-50/70 print:bg-gray-100">
+                <tr class="hidden sm:table-row print:table-row border-t border-slate-200 print:border-gray-400 font-bold bg-slate-50/70 print:bg-gray-100">
                     <x-ui.td colspan="4" align="right" class="text-slate-700 print:text-black font-semibold print:text-[8.5pt] align-middle">
                         Total Masuk (Per Satuan):
                     </x-ui.td>
@@ -575,6 +621,31 @@
                 </tr>
                 @endif
             </x-slot:tfoot>
+
+            @if(count($stockInTransactions) > 0)
+            <x-slot:footer>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center justify-between sm:justify-start gap-2">
+                        <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px]">
+                            Total Masuk (Per Satuan):
+                        </span>
+                        <span class="text-xs font-semibold text-slate-500">
+                            ({{ count($stockInTransactions) }} Faktur)
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        @forelse($inUnitTotals as $uSym => $qty)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200/90 text-xs font-mono font-bold text-emerald-800 shadow-2xs">
+                                <span>+{{ number_format($qty, 0, ',', '.') }}</span>
+                                <span class="text-[10px] font-sans font-semibold text-emerald-600 uppercase">{{ $uSym }}</span>
+                            </span>
+                        @empty
+                            <span class="text-xs text-slate-400 italic">Tidak ada data</span>
+                        @endforelse
+                    </div>
+                </div>
+            </x-slot:footer>
+            @endif
         </x-ui.table>
     </div>
     @endif
@@ -618,6 +689,16 @@
             loadingTarget="startDate,endDate,recipient,setTab"
             class="bmi-report-table print:border-none print:shadow-none print:rounded-none [&>div]:print:overflow-visible"
         >
+            <x-slot:header>
+                <div class="sm:hidden px-3.5 py-2.5 bg-slate-50/90 border-b border-slate-200/80 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+                    <span class="flex items-center gap-1.5">
+                        <x-heroicon-o-arrows-right-left class="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span>Geser tabel untuk melihat rincian barang</span>
+                    </span>
+                    <span class="font-bold text-slate-700 font-mono shrink-0">{{ count($stockOutTransactions) }} Transaksi</span>
+                </div>
+            </x-slot:header>
+
             <x-slot:head>
                 <x-ui.th class="w-44 print:w-[16%] whitespace-nowrap">No. Transaksi</x-ui.th>
                 <x-ui.th class="w-28 print:w-[11%] whitespace-nowrap">Tanggal</x-ui.th>
@@ -675,7 +756,7 @@
 
             <x-slot:tfoot>
                 @if(count($stockOutTransactions) > 0)
-                <tr class="border-t border-slate-200 print:border-gray-400 font-bold bg-slate-50/70 print:bg-gray-100">
+                <tr class="hidden sm:table-row print:table-row border-t border-slate-200 print:border-gray-400 font-bold bg-slate-50/70 print:bg-gray-100">
                     <x-ui.td colspan="4" align="right" class="text-slate-700 print:text-black font-semibold print:text-[8.5pt] align-middle">
                         Total Keluar (Per Satuan):
                     </x-ui.td>
@@ -695,6 +776,31 @@
                 </tr>
                 @endif
             </x-slot:tfoot>
+
+            @if(count($stockOutTransactions) > 0)
+            <x-slot:footer>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                    <div class="flex items-center justify-between sm:justify-start gap-2">
+                        <span class="font-bold text-slate-700 uppercase tracking-wider text-[11px]">
+                            Total Keluar (Per Satuan):
+                        </span>
+                        <span class="text-xs font-semibold text-slate-500">
+                            ({{ count($stockOutTransactions) }} Transaksi)
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                        @forelse($outUnitTotals as $uSym => $qty)
+                            <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200/90 text-xs font-mono font-bold text-rose-800 shadow-2xs">
+                                <span>-{{ number_format($qty, 0, ',', '.') }}</span>
+                                <span class="text-[10px] font-sans font-semibold text-rose-600 uppercase">{{ $uSym }}</span>
+                            </span>
+                        @empty
+                            <span class="text-xs text-slate-400 italic">Tidak ada data</span>
+                        @endforelse
+                    </div>
+                </div>
+            </x-slot:footer>
+            @endif
         </x-ui.table>
     </div>
     @endif

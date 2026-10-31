@@ -214,4 +214,36 @@ class ReportRankingTest extends TestCase
             ->assertDontSee('Valuasi Aset')
             ->assertDontSee('Harga Satuan');
     }
+
+    public function test_unit_totals_accurately_reflect_active_filters(): void
+    {
+        $unitKg = Unit::create([
+            'name' => 'Kilogram',
+            'symbol' => 'KG',
+            'is_active' => true,
+        ]);
+
+        Product::create([
+            'sku' => 'PRD-KG-01',
+            'name' => 'Barang Beras',
+            'category_id' => $this->productFast->category_id,
+            'unit_id' => $unitKg->id,
+            'minimum_stock' => 5,
+            'current_stock' => 50,
+            'is_active' => true,
+        ]);
+
+        // When filtering by FAST_MOVING, only productFast should be included (unit PCS), not productKg
+        $resultFast = $this->stockService->getProductsWithMovementAnalysis(velocityStatus: 'FAST_MOVING');
+        $this->assertArrayHasKey('PCS', $resultFast['summary']['unit_totals']);
+        $this->assertArrayNotHasKey('KG', $resultFast['summary']['unit_totals']);
+        $this->assertEquals(20, $resultFast['summary']['unit_totals']['PCS']['stock']);
+
+        // When filtering by NON_MOVING, both productNonMoving (PCS: 20) and productKg (KG: 50) should be included
+        $resultNonMoving = $this->stockService->getProductsWithMovementAnalysis(velocityStatus: 'NON_MOVING');
+        $this->assertArrayHasKey('PCS', $resultNonMoving['summary']['unit_totals']);
+        $this->assertArrayHasKey('KG', $resultNonMoving['summary']['unit_totals']);
+        $this->assertEquals(20, $resultNonMoving['summary']['unit_totals']['PCS']['stock']);
+        $this->assertEquals(50, $resultNonMoving['summary']['unit_totals']['KG']['stock']);
+    }
 }

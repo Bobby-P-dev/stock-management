@@ -737,37 +737,6 @@ class StockService
             }
         });
 
-        $unitTotals = [];
-        foreach ($products as $p) {
-            $u = $p->unit->symbol ?? ($p->unit->name ?? 'Unit');
-            if (! isset($unitTotals[$u])) {
-                $unitTotals[$u] = [
-                    'stock' => 0,
-                    'in' => 0,
-                    'out' => 0,
-                    'movement' => 0,
-                    'count' => 0,
-                ];
-            }
-            $unitTotals[$u]['stock'] += (int) $p->current_stock;
-            $unitTotals[$u]['in'] += (int) ($p->total_in ?? 0);
-            $unitTotals[$u]['out'] += (int) ($p->total_out ?? 0);
-            $unitTotals[$u]['movement'] += (int) ($p->total_movement ?? 0);
-            $unitTotals[$u]['count']++;
-        }
-        ksort($unitTotals);
-
-        $summary = [
-            'total_products' => $products->count(),
-            'total_units' => (int) $products->sum('current_stock'),
-            'total_valuation' => (float) $products->sum('stock_valuation'),
-            'fast_moving' => $products->where('velocity_status', 'FAST_MOVING')->count(),
-            'medium_moving' => $products->where('velocity_status', 'MEDIUM_MOVING')->count(),
-            'slow_moving' => $products->where('velocity_status', 'SLOW_MOVING')->count(),
-            'non_moving' => $products->where('velocity_status', 'NON_MOVING')->count(),
-            'unit_totals' => $unitTotals,
-        ];
-
         $sorted = match ($sortBy) {
             'valuation_desc' => $products->sortByDesc('stock_valuation'),
             'valuation_asc' => $products->sortBy('stock_valuation'),
@@ -811,6 +780,48 @@ class StockService
         if ($velocityStatus) {
             $ranked = $ranked->where('velocity_status', $velocityStatus)->values();
         }
+
+        // Build unit_totals strictly from the final filtered and sorted collection
+        $unitTotals = [];
+        foreach ($ranked as $p) {
+            $u = $p->unit->symbol ?? ($p->unit->name ?? 'Unit');
+            if (! isset($unitTotals[$u])) {
+                $unitTotals[$u] = [
+                    'stock' => 0,
+                    'in' => 0,
+                    'out' => 0,
+                    'movement' => 0,
+                    'count' => 0,
+                ];
+            }
+            $unitTotals[$u]['stock'] += (int) $p->current_stock;
+            $unitTotals[$u]['in'] += (int) ($p->total_in ?? 0);
+            $unitTotals[$u]['out'] += (int) ($p->total_out ?? 0);
+            $unitTotals[$u]['movement'] += (int) ($p->total_movement ?? 0);
+            $unitTotals[$u]['count']++;
+        }
+
+        // Sort unit totals to harmonize with the active sort criterion
+        match ($sortBy) {
+            'stock_desc' => uasort($unitTotals, fn ($a, $b) => $b['stock'] <=> $a['stock']),
+            'stock_asc' => uasort($unitTotals, fn ($a, $b) => $a['stock'] <=> $b['stock']),
+            'most_sold' => uasort($unitTotals, fn ($a, $b) => $b['out'] <=> $a['out']),
+            'most_in' => uasort($unitTotals, fn ($a, $b) => $b['in'] <=> $a['in']),
+            'turnover' => uasort($unitTotals, fn ($a, $b) => $b['movement'] <=> $a['movement']),
+            'name' => ksort($unitTotals),
+            default => null, // preserves appearance order in $ranked
+        };
+
+        $summary = [
+            'total_products' => $ranked->count(),
+            'total_units' => (int) $ranked->sum('current_stock'),
+            'total_valuation' => (float) $ranked->sum('stock_valuation'),
+            'fast_moving' => $products->where('velocity_status', 'FAST_MOVING')->count(),
+            'medium_moving' => $products->where('velocity_status', 'MEDIUM_MOVING')->count(),
+            'slow_moving' => $products->where('velocity_status', 'SLOW_MOVING')->count(),
+            'non_moving' => $products->where('velocity_status', 'NON_MOVING')->count(),
+            'unit_totals' => $unitTotals,
+        ];
 
         return [
             'products' => $ranked,
