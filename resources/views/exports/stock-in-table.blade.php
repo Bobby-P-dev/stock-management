@@ -60,11 +60,14 @@
             @php
                 $rowNo = 1;
                 $totalQty = 0;
+                $inUnitTotals = [];
             @endphp
             @forelse($transactions as $tx)
                 @foreach($tx->items as $item)
                     @php
                         $totalQty += $item->quantity;
+                        $u = $item->product->unit->symbol ?? ($item->product->unit->name ?? 'Unit');
+                        $inUnitTotals[$u] = ($inUnitTotals[$u] ?? 0) + $item->quantity;
                         $rowClass = ($rowNo % 2 === 0) ? 'background-color: #f8fafc;' : '';
                     @endphp
                     <tr style="{{ $rowClass }}">
@@ -89,10 +92,16 @@
         @if($totalQty > 0)
         <tfoot>
             <tr class="tfoot">
-                <td colspan="6" class="text-right" style="padding: 8px;">Total Akumulasi Pasokan Masuk:</td>
-                <td class="text-right" style="font-size: 11pt; color: #1e1b4b;">{{ number_format($totalQty, 0, ',', '.') }}</td>
-                <td></td>
-                <td colspan="2"></td>
+                <td colspan="6" class="text-right" style="padding: 8px;">Total Akumulasi Pasokan Masuk (Per Satuan):</td>
+                <td colspan="4" class="text-left" style="padding: 8px; font-weight: bold; color: #047857;">
+                    @php
+                        $inUnitStrings = [];
+                        foreach ($inUnitTotals as $u => $q) {
+                            $inUnitStrings[] = '+' . number_format($q, 0, ',', '.') . ' ' . $u;
+                        }
+                    @endphp
+                    {{ implode('   •   ', $inUnitStrings) }}
+                </td>
             </tr>
         </tfoot>
         @endif

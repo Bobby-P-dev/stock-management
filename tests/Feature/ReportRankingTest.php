@@ -201,13 +201,15 @@ class ReportRankingTest extends TestCase
     {
         $analysis = $this->stockService->getProductsWithMovementAnalysis();
         $this->assertArrayHasKey('total_units', $analysis['summary']);
+        $this->assertArrayHasKey('unit_totals', $analysis['summary']);
         $this->assertGreaterThan(0, $analysis['summary']['total_units']);
 
         Livewire::actingAs($this->admin)
             ->test(ReportIndex::class)
             ->set('activeTab', 'stock')
-            ->assertSee('Total Stok Fisik')
+            ->assertSee('Total Ragam Barang')
             ->assertSee('Fast Moving')
+            ->assertSee('Total Akumulasi (Per Satuan)')
             ->assertDontSee('Valuasi Aset Gudang')
             ->assertDontSee('Valuasi Aset')
             ->assertDontSee('Harga Satuan');

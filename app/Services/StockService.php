@@ -737,6 +737,26 @@ class StockService
             }
         });
 
+        $unitTotals = [];
+        foreach ($products as $p) {
+            $u = $p->unit->symbol ?? ($p->unit->name ?? 'Unit');
+            if (! isset($unitTotals[$u])) {
+                $unitTotals[$u] = [
+                    'stock' => 0,
+                    'in' => 0,
+                    'out' => 0,
+                    'movement' => 0,
+                    'count' => 0,
+                ];
+            }
+            $unitTotals[$u]['stock'] += (int) $p->current_stock;
+            $unitTotals[$u]['in'] += (int) ($p->total_in ?? 0);
+            $unitTotals[$u]['out'] += (int) ($p->total_out ?? 0);
+            $unitTotals[$u]['movement'] += (int) ($p->total_movement ?? 0);
+            $unitTotals[$u]['count']++;
+        }
+        ksort($unitTotals);
+
         $summary = [
             'total_products' => $products->count(),
             'total_units' => (int) $products->sum('current_stock'),
@@ -745,6 +765,7 @@ class StockService
             'medium_moving' => $products->where('velocity_status', 'MEDIUM_MOVING')->count(),
             'slow_moving' => $products->where('velocity_status', 'SLOW_MOVING')->count(),
             'non_moving' => $products->where('velocity_status', 'NON_MOVING')->count(),
+            'unit_totals' => $unitTotals,
         ];
 
         $sorted = match ($sortBy) {

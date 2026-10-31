@@ -46,5 +46,9 @@ if [ "$SKIP_CACHE" != "true" ] && { [ "$APP_ENV" = "production" ] || [ "$APP_ENV
     php artisan view:cache || true
 fi
 
+# Pastikan hak akses storage dan cache tetap dimiliki www-data setelah artisan dijalankan oleh root
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 echo "==> Berkah Mandiri Inventory siap dijalankan."
 exec "$@"

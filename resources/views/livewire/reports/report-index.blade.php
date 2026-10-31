@@ -166,11 +166,11 @@
     <div class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 print:hidden">
             <x-kpi-card
-                label="Total Stok Fisik"
-                :value="number_format($stockSummary['total_units'] ?? 0, 0, ',', '.')"
-                unit="unit"
+                label="Total Ragam Barang"
+                :value="$stockSummary['total_products']"
+                unit="SKU"
                 tone="blue"
-                description="Akumulasi kuantitas fisik di gudang"
+                :description="count($stockSummary['unit_totals'] ?? []) . ' ragam satuan terdaftar'"
             >
                 <x-slot:icon>
                     <x-heroicon-o-archive-box class="w-5 h-5" />
@@ -436,12 +436,23 @@
 
             <x-slot:tfoot>
                 <tr class="bg-slate-50/90 font-bold text-slate-800 border-t-2 border-slate-200 print:border-t print:border-slate-400">
-                    <td colspan="7" class="py-3 px-3 text-right uppercase tracking-wider text-[11px] text-slate-600 print:text-black print:text-[8pt]">Total Akumulasi:</td>
-                    <td class="py-3 px-3 text-right font-mono font-bold text-slate-900 text-xs print:text-black print:text-[8.5pt]">
-                        {{ number_format($stockSummary['total_units'] ?? 0, 0, ',', '.') }}
+                    <td colspan="4" class="py-3 px-3 text-right uppercase tracking-wider text-[11px] text-slate-600 print:text-black print:text-[8pt] align-middle">
+                        Total Akumulasi (Per Satuan):
                     </td>
-                    <td colspan="2" class="py-3 px-3 text-center text-slate-400 print:text-slate-600 text-[11px] print:text-[8pt]">
-                        {{ count($stockProducts) }} Barang
+                    <td colspan="4" class="py-2.5 px-3 align-middle">
+                        <div class="flex flex-wrap items-center justify-end gap-1.5 sm:gap-2">
+                            @forelse($stockSummary['unit_totals'] ?? [] as $uSymbol => $uData)
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white border border-slate-200/90 text-xs font-mono font-bold text-slate-900 shadow-2xs">
+                                    <span>{{ number_format($uData['stock'], 0, ',', '.') }}</span>
+                                    <span class="text-[10px] font-sans font-semibold text-slate-500 uppercase">{{ $uSymbol }}</span>
+                                </span>
+                            @empty
+                                <span class="text-xs text-slate-400">-</span>
+                            @endforelse
+                        </div>
+                    </td>
+                    <td colspan="2" class="py-3 px-3 text-center text-slate-500 font-semibold print:text-slate-600 text-[11px] print:text-[8pt] align-middle">
+                        {{ count($stockProducts) }} Jenis Barang
                     </td>
                 </tr>
             </x-slot:tfoot>
@@ -545,9 +556,22 @@
             <x-slot:tfoot>
                 @if(count($stockInTransactions) > 0)
                 <tr class="border-t border-slate-200 print:border-gray-400 font-bold bg-slate-50/70 print:bg-gray-100">
-                    <x-ui.td colspan="4" align="right" class="text-slate-700 print:text-black font-semibold print:text-[8.5pt]">Total Kuantitas Masuk:</x-ui.td>
-                    <x-ui.td align="right" :numeric="true" class="text-sm print:text-[9pt] text-emerald-600 print:text-black font-bold">+{{ number_format($totalUnitMasuk) }} Unit</x-ui.td>
-                    <x-ui.td></x-ui.td>
+                    <x-ui.td colspan="4" align="right" class="text-slate-700 print:text-black font-semibold print:text-[8.5pt] align-middle">
+                        Total Masuk (Per Satuan):
+                    </x-ui.td>
+                    <x-ui.td align="right" class="py-2.5 px-3 align-middle">
+                        <div class="flex flex-wrap items-center justify-end gap-1.5">
+                            @foreach($inUnitTotals as $uSym => $qty)
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 border border-emerald-200/90 text-xs font-mono font-bold text-emerald-800 shadow-2xs">
+                                    <span>+{{ number_format($qty, 0, ',', '.') }}</span>
+                                    <span class="text-[10px] font-sans font-semibold text-emerald-600 uppercase">{{ $uSym }}</span>
+                                </span>
+                            @endforeach
+                        </div>
+                    </x-ui.td>
+                    <x-ui.td class="text-center text-slate-500 font-semibold print:text-slate-600 text-[11px] print:text-[8pt] align-middle">
+                        {{ count($stockInTransactions) }} Faktur
+                    </x-ui.td>
                 </tr>
                 @endif
             </x-slot:tfoot>
@@ -652,9 +676,22 @@
             <x-slot:tfoot>
                 @if(count($stockOutTransactions) > 0)
                 <tr class="border-t border-slate-200 print:border-gray-400 font-bold bg-slate-50/70 print:bg-gray-100">
-                    <x-ui.td colspan="4" align="right" class="text-slate-700 print:text-black font-semibold print:text-[8.5pt]">Total Kuantitas Keluar:</x-ui.td>
-                    <x-ui.td align="right" :numeric="true" class="text-sm print:text-[9pt] text-rose-600 print:text-black font-bold">-{{ number_format($totalUnitKeluar) }} Unit</x-ui.td>
-                    <x-ui.td></x-ui.td>
+                    <x-ui.td colspan="4" align="right" class="text-slate-700 print:text-black font-semibold print:text-[8.5pt] align-middle">
+                        Total Keluar (Per Satuan):
+                    </x-ui.td>
+                    <x-ui.td align="right" class="py-2.5 px-3 align-middle">
+                        <div class="flex flex-wrap items-center justify-end gap-1.5">
+                            @foreach($outUnitTotals as $uSym => $qty)
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 border border-rose-200/90 text-xs font-mono font-bold text-rose-800 shadow-2xs">
+                                    <span>-{{ number_format($qty, 0, ',', '.') }}</span>
+                                    <span class="text-[10px] font-sans font-semibold text-rose-600 uppercase">{{ $uSym }}</span>
+                                </span>
+                            @endforeach
+                        </div>
+                    </x-ui.td>
+                    <x-ui.td class="text-center text-slate-500 font-semibold print:text-slate-600 text-[11px] print:text-[8pt] align-middle">
+                        {{ count($stockOutTransactions) }} Transaksi
+                    </x-ui.td>
                 </tr>
                 @endif
             </x-slot:tfoot>

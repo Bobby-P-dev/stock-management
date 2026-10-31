@@ -60,6 +60,7 @@ class ReportIndex extends Component
             'medium_moving' => 0,
             'slow_moving' => 0,
             'non_moving' => 0,
+            'unit_totals' => [],
         ];
 
         if ($this->activeTab === 'stock') {
@@ -77,6 +78,7 @@ class ReportIndex extends Component
         }
 
         $stockInTransactions = [];
+        $inUnitTotals = [];
         if ($this->activeTab === 'in') {
             $stockInTransactions = StockTransaction::in()
                 ->with(['supplier', 'creator', 'items.product.unit'])
@@ -85,9 +87,18 @@ class ReportIndex extends Component
                 ->when($this->supplierId, fn ($q) => $q->where('supplier_id', $this->supplierId))
                 ->orderBy('transaction_date', 'asc')
                 ->get();
+
+            foreach ($stockInTransactions as $tx) {
+                foreach ($tx->items as $it) {
+                    $u = $it->product->unit->symbol ?? ($it->product->unit->name ?? 'Unit');
+                    $inUnitTotals[$u] = ($inUnitTotals[$u] ?? 0) + $it->quantity;
+                }
+            }
+            ksort($inUnitTotals);
         }
 
         $stockOutTransactions = [];
+        $outUnitTotals = [];
         if ($this->activeTab === 'out') {
             $stockOutTransactions = StockTransaction::out()
                 ->with(['creator', 'items.product.unit'])
@@ -96,6 +107,14 @@ class ReportIndex extends Component
                 ->when($this->recipient, fn ($q) => $q->where('recipient', 'like', '%'.$this->recipient.'%'))
                 ->orderBy('transaction_date', 'asc')
                 ->get();
+
+            foreach ($stockOutTransactions as $tx) {
+                foreach ($tx->items as $it) {
+                    $u = $it->product->unit->symbol ?? ($it->product->unit->name ?? 'Unit');
+                    $outUnitTotals[$u] = ($outUnitTotals[$u] ?? 0) + $it->quantity;
+                }
+            }
+            ksort($outUnitTotals);
         }
 
         return view('livewire.reports.report-index', [
@@ -105,6 +124,8 @@ class ReportIndex extends Component
             'stockSummary' => $stockSummary,
             'stockInTransactions' => $stockInTransactions,
             'stockOutTransactions' => $stockOutTransactions,
+            'inUnitTotals' => $inUnitTotals,
+            'outUnitTotals' => $outUnitTotals,
         ]);
     }
 }

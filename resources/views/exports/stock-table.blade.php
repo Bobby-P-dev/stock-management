@@ -124,12 +124,16 @@
         @if(count($products) > 0)
         <tfoot>
             <tr class="tfoot">
-                <td colspan="5" class="text-right" style="padding: 8px;">Total Akumulasi:</td>
-                <td class="text-right" style="color: #047857;">+{{ number_format($sumIn, 0, ',', '.') }}</td>
-                <td class="text-right" style="color: #dc2626;">-{{ number_format($sumOut, 0, ',', '.') }}</td>
-                <td class="text-right" style="font-size: 11pt; color: #1e1b4b;">{{ number_format($sumMovement, 0, ',', '.') }}</td>
-                <td></td>
-                <td class="text-right" style="font-size: 11pt; color: #1e1b4b;">{{ number_format($totalUnit, 0, ',', '.') }}</td>
+                <td colspan="5" class="text-right" style="padding: 8px;">Total Akumulasi (Per Satuan):</td>
+                <td colspan="5" class="text-left" style="padding: 8px; font-weight: bold; color: #1e1b4b;">
+                    @php
+                        $unitStrings = [];
+                        foreach ($summary['unit_totals'] ?? [] as $u => $d) {
+                            $unitStrings[] = number_format($d['stock'], 0, ',', '.') . ' ' . $u;
+                        }
+                    @endphp
+                    {{ implode('   •   ', $unitStrings) }}
+                </td>
                 <td colspan="2" class="text-center">{{ count($products) }} SKU Terdata</td>
             </tr>
         </tfoot>
