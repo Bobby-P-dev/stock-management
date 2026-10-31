@@ -36,12 +36,12 @@
 <body>
     <table>
         <tr>
-            <td colspan="12" class="title">LAPORAN REKAPITULASI BARANG MASUK (STOCK IN)</td>
+            <td colspan="10" class="title">LAPORAN REKAPITULASI BARANG MASUK (STOCK IN)</td>
         </tr>
         <tr>
-            <td colspan="12" class="subtitle">Periode: {{ $startDate ?? 'Semua' }} s/d {{ $endDate ?? 'Semua' }} &bull; Dicetak: {{ $generatedAt }} &bull; Oleh: {{ $user->name }} ({{ ucfirst($user->role) }})</td>
+            <td colspan="10" class="subtitle">Periode: {{ $startDate ?? 'Semua' }} s/d {{ $endDate ?? 'Semua' }} &bull; Dicetak: {{ $generatedAt }} &bull; Oleh: {{ $user->name }} ({{ ucfirst($user->role) }})</td>
         </tr>
-        <tr><td colspan="12" style="border: none;"></td></tr>
+        <tr><td colspan="10" style="border: none;"></td></tr>
         <thead>
             <tr>
                 <th style="width: 40px;">No</th>
@@ -52,8 +52,6 @@
                 <th style="width: 220px;">Nama Barang</th>
                 <th style="width: 80px;">Qty</th>
                 <th style="width: 70px;">Satuan</th>
-                <th style="width: 110px;">Harga Satuan (Rp)</th>
-                <th style="width: 120px;">Subtotal (Rp)</th>
                 <th style="width: 130px;">Petugas Penerima</th>
                 <th style="width: 160px;">Catatan</th>
             </tr>
@@ -62,13 +60,11 @@
             @php
                 $rowNo = 1;
                 $totalQty = 0;
-                $totalNilai = 0;
             @endphp
             @forelse($transactions as $tx)
                 @foreach($tx->items as $item)
                     @php
                         $totalQty += $item->quantity;
-                        $totalNilai += ($item->subtotal ?? ($item->quantity * ($item->unit_price ?? 0)));
                         $rowClass = ($rowNo % 2 === 0) ? 'background-color: #f8fafc;' : '';
                     @endphp
                     <tr style="{{ $rowClass }}">
@@ -80,26 +76,22 @@
                         <td>{{ $item->product->name ?? '-' }}</td>
                         <td class="text-right" style="font-weight: bold;">{{ number_format($item->quantity, 0, ',', '.') }}</td>
                         <td class="text-center">{{ $item->product->unit->symbol ?? '-' }}</td>
-                        <td class="text-right">{{ number_format($item->unit_price ?? 0, 0, ',', '.') }}</td>
-                        <td class="text-right" style="font-weight: bold;">{{ number_format($item->subtotal ?? 0, 0, ',', '.') }}</td>
                         <td>{{ $tx->creator->name ?? '-' }}</td>
                         <td style="color: #64748b;">{{ $tx->note ?? '-' }}</td>
                     </tr>
                 @endforeach
             @empty
                 <tr>
-                    <td colspan="12" class="text-center" style="padding: 16px; color: #64748b;">Tidak ada data transaksi barang masuk dalam periode ini.</td>
+                    <td colspan="10" class="text-center" style="padding: 16px; color: #64748b;">Tidak ada data transaksi barang masuk dalam periode ini.</td>
                 </tr>
             @endforelse
         </tbody>
         @if($totalQty > 0)
         <tfoot>
             <tr class="tfoot">
-                <td colspan="6" class="text-right" style="padding: 8px;">Total Akumulasi Pembelian & Pasokan Masuk:</td>
+                <td colspan="6" class="text-right" style="padding: 8px;">Total Akumulasi Pasokan Masuk:</td>
                 <td class="text-right" style="font-size: 11pt; color: #1e1b4b;">{{ number_format($totalQty, 0, ',', '.') }}</td>
                 <td></td>
-                <td></td>
-                <td class="text-right" style="font-size: 11pt; color: #047857;">Rp {{ number_format($totalNilai, 0, ',', '.') }}</td>
                 <td colspan="2"></td>
             </tr>
         </tfoot>

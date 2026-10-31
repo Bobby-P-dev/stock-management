@@ -193,19 +193,23 @@ class ReportRankingTest extends TestCase
         $this->assertStringContainsString('LAPORAN POSISI STOK & RANKING PERPUTARAN BARANG', $content);
         $this->assertStringContainsString('Fast Moving', $content);
         $this->assertStringContainsString('PRD-FAST-01', $content);
-        $this->assertStringContainsString('Valuasi Aset', $content);
+        $this->assertStringNotContainsString('Valuasi Aset', $content);
+        $this->assertStringNotContainsString('Harga Satuan', $content);
     }
 
-    public function test_inventory_valuation_is_calculated_and_rendered(): void
+    public function test_reports_focuses_purely_on_inventory_units_without_financial_metrics(): void
     {
         $analysis = $this->stockService->getProductsWithMovementAnalysis();
-        $this->assertArrayHasKey('total_valuation', $analysis['summary']);
-        $this->assertGreaterThan(0, $analysis['summary']['total_valuation']);
+        $this->assertArrayHasKey('total_units', $analysis['summary']);
+        $this->assertGreaterThan(0, $analysis['summary']['total_units']);
 
         Livewire::actingAs($this->admin)
             ->test(ReportIndex::class)
             ->set('activeTab', 'stock')
-            ->assertSee('Valuasi Aset Gudang')
-            ->assertSee('Valuasi Aset');
+            ->assertSee('Total Stok Fisik')
+            ->assertSee('Fast Moving')
+            ->assertDontSee('Valuasi Aset Gudang')
+            ->assertDontSee('Valuasi Aset')
+            ->assertDontSee('Harga Satuan');
     }
 }

@@ -42,12 +42,12 @@
 <body>
     <table>
         <tr>
-            <td colspan="14" class="title">LAPORAN POSISI STOK & RANKING PERPUTARAN BARANG</td>
+            <td colspan="12" class="title">LAPORAN POSISI STOK & RANKING PERPUTARAN BARANG</td>
         </tr>
         <tr>
-            <td colspan="14" class="subtitle">Berkah Mandiri Inventory &bull; Periode Mutasi: {{ $startDate ?? 'Seluruh Waktu' }} s/d {{ $endDate ?? 'Seluruh Waktu' }} &bull; Dicetak: {{ $generatedAt }} &bull; Oleh: {{ $user->name }} ({{ ucfirst($user->role) }})</td>
+            <td colspan="12" class="subtitle">Berkah Mandiri Inventory &bull; Periode Mutasi: {{ $startDate ?? 'Seluruh Waktu' }} s/d {{ $endDate ?? 'Seluruh Waktu' }} &bull; Dicetak: {{ $generatedAt }} &bull; Oleh: {{ $user->name }} ({{ ucfirst($user->role) }})</td>
         </tr>
-        <tr><td colspan="14" style="border: none;"></td></tr>
+        <tr><td colspan="12" style="border: none;"></td></tr>
         <thead>
             <tr>
                 <th style="width: 50px;">Rank</th>
@@ -60,8 +60,6 @@
                 <th style="width: 100px;">Total Mutasi</th>
                 <th style="width: 80px;">Batas Min</th>
                 <th style="width: 100px;">Stok Terkini</th>
-                <th style="width: 110px;">Harga Satuan (Rp)</th>
-                <th style="width: 130px;">Valuasi Aset (Rp)</th>
                 <th style="width: 90px;">Status Stok</th>
                 <th style="width: 120px;">Perputaran</th>
             </tr>
@@ -72,7 +70,6 @@
                 $sumIn = 0;
                 $sumOut = 0;
                 $sumMovement = 0;
-                $sumValuation = 0;
             @endphp
             @forelse($products as $idx => $p)
             @php
@@ -80,7 +77,6 @@
                 $sumIn += ($p->total_in ?? 0);
                 $sumOut += ($p->total_out ?? 0);
                 $sumMovement += ($p->total_movement ?? 0);
-                $sumValuation += ($p->stock_valuation ?? 0);
                 $rowClass = ($idx % 2 === 1) ? 'background-color: #f8fafc;' : '';
 
                 $rankClass = 'text-center';
@@ -110,8 +106,6 @@
                 <td class="text-right" style="font-weight: bold;">{{ number_format($p->total_movement ?? 0, 0, ',', '.') }}</td>
                 <td class="text-center">{{ $p->minimum_stock }}</td>
                 <td class="text-right" style="font-weight: bold;">{{ $p->current_stock }}</td>
-                <td class="text-right">{{ number_format($p->latest_unit_price ?? 0, 0, ',', '.') }}</td>
-                <td class="text-right" style="font-weight: bold; color: #047857;">{{ number_format($p->stock_valuation ?? 0, 0, ',', '.') }}</td>
                 @if($p->isOutOfStock())
                 <td class="badge-out">Habis</td>
                 @elseif($p->isLowStock())
@@ -123,7 +117,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="14" class="text-center" style="padding: 16px; color: #64748b;">Tidak ada data barang yang tersedia.</td>
+                <td colspan="12" class="text-center" style="padding: 16px; color: #64748b;">Tidak ada data barang yang tersedia.</td>
             </tr>
             @endforelse
         </tbody>
@@ -136,8 +130,6 @@
                 <td class="text-right" style="font-size: 11pt; color: #1e1b4b;">{{ number_format($sumMovement, 0, ',', '.') }}</td>
                 <td></td>
                 <td class="text-right" style="font-size: 11pt; color: #1e1b4b;">{{ number_format($totalUnit, 0, ',', '.') }}</td>
-                <td></td>
-                <td class="text-right" style="font-size: 11pt; color: #047857; font-weight: bold;">Rp {{ number_format($sumValuation, 0, ',', '.') }}</td>
                 <td colspan="2" class="text-center">{{ count($products) }} SKU Terdata</td>
             </tr>
         </tfoot>

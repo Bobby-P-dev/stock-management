@@ -166,13 +166,14 @@
     <div class="space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 print:hidden">
             <x-kpi-card
-                label="Valuasi Aset Gudang"
-                :value="'Rp ' . number_format($stockSummary['total_valuation'] ?? 0, 0, ',', '.')"
-                tone="emerald"
-                description="Estimasi nilai modal stok fisik"
+                label="Total Stok Fisik"
+                :value="number_format($stockSummary['total_units'] ?? 0, 0, ',', '.')"
+                unit="unit"
+                tone="blue"
+                description="Akumulasi kuantitas fisik di gudang"
             >
                 <x-slot:icon>
-                    <x-heroicon-o-banknotes class="w-5 h-5" />
+                    <x-heroicon-o-archive-box class="w-5 h-5" />
                 </x-slot:icon>
             </x-kpi-card>
 
@@ -234,8 +235,6 @@
                         wire:model.live="stockSortBy"
                         :options="[
                             ['value' => 'turnover', 'label' => 'Paling Cepat (Total In + Out)'],
-                            ['value' => 'valuation_desc', 'label' => 'Valuasi Aset Terbesar (Rp)'],
-                            ['value' => 'valuation_asc', 'label' => 'Valuasi Aset Terkecil (Rp)'],
                             ['value' => 'most_sold', 'label' => 'Paling Laku (Total Keluar)'],
                             ['value' => 'most_in', 'label' => 'Paling Sering Masuk'],
                             ['value' => 'stock_desc', 'label' => 'Stok Fisik Terbanyak'],
@@ -350,16 +349,14 @@
             <x-slot:head>
                 <x-ui.th align="center" class="w-10 print:w-[4%]">Rank</x-ui.th>
                 <x-ui.th class="w-24 print:w-[10%] whitespace-nowrap">SKU</x-ui.th>
-                <x-ui.th class="min-w-[150px] print:w-[20%]">Nama Barang</x-ui.th>
-                <x-ui.th class="w-24 print:w-[9%] whitespace-nowrap">Kategori</x-ui.th>
-                <x-ui.th align="right" class="w-16 print:w-[6%] whitespace-nowrap text-emerald-700 print:text-black">Masuk (+)</x-ui.th>
-                <x-ui.th align="right" class="w-16 print:w-[6%] whitespace-nowrap text-rose-700 print:text-black">Keluar (-)</x-ui.th>
-                <x-ui.th align="right" class="w-20 print:w-[7%] whitespace-nowrap">Total Mutasi</x-ui.th>
-                <x-ui.th align="right" class="w-20 print:w-[7%] whitespace-nowrap">Stok Terkini</x-ui.th>
-                <x-ui.th align="right" class="w-24 print:w-[9%] whitespace-nowrap">Harga Satuan</x-ui.th>
-                <x-ui.th align="right" class="w-28 print:w-[10%] whitespace-nowrap text-emerald-700 print:text-black">Valuasi Aset</x-ui.th>
-                <x-ui.th align="center" class="w-20 print:w-[6%] whitespace-nowrap">Status</x-ui.th>
-                <x-ui.th align="center" class="w-24 print:w-[6%] whitespace-nowrap">Perputaran</x-ui.th>
+                <x-ui.th class="min-w-[150px] print:w-[24%]">Nama Barang</x-ui.th>
+                <x-ui.th class="w-24 print:w-[11%] whitespace-nowrap">Kategori</x-ui.th>
+                <x-ui.th align="right" class="w-16 print:w-[7%] whitespace-nowrap text-emerald-700 print:text-black">Masuk (+)</x-ui.th>
+                <x-ui.th align="right" class="w-16 print:w-[7%] whitespace-nowrap text-rose-700 print:text-black">Keluar (-)</x-ui.th>
+                <x-ui.th align="right" class="w-20 print:w-[8%] whitespace-nowrap">Total Mutasi</x-ui.th>
+                <x-ui.th align="right" class="w-20 print:w-[9%] whitespace-nowrap">Stok Terkini</x-ui.th>
+                <x-ui.th align="center" class="w-20 print:w-[8%] whitespace-nowrap">Status</x-ui.th>
+                <x-ui.th align="center" class="w-24 print:w-[12%] whitespace-nowrap">Perputaran</x-ui.th>
             </x-slot:head>
 
             @forelse($stockProducts as $p)
@@ -388,12 +385,6 @@
                 </x-ui.td>
                 <x-ui.td align="right" :numeric="true" class="font-bold text-slate-900 print:text-black print:text-[8.5pt]">
                     {{ $p->current_stock }} <span class="text-[11px] print:text-[7.5pt] text-slate-400 print:text-slate-500 font-normal">{{ $p->unit->symbol ?? '' }}</span>
-                </x-ui.td>
-                <x-ui.td align="right" :numeric="true" class="text-slate-600 print:text-black whitespace-nowrap print:text-[8.5pt]">
-                    {{ $p->latest_unit_price > 0 ? 'Rp ' . number_format($p->latest_unit_price, 0, ',', '.') : '-' }}
-                </x-ui.td>
-                <x-ui.td align="right" :numeric="true" class="font-bold text-emerald-700 print:text-black whitespace-nowrap print:text-[8.5pt]">
-                    {{ $p->stock_valuation > 0 ? 'Rp ' . number_format($p->stock_valuation, 0, ',', '.') : '-' }}
                 </x-ui.td>
                 <x-ui.td align="center" class="print:text-[8.5pt]">
                     @if($p->isOutOfStock())
@@ -430,7 +421,7 @@
             </x-ui.tr>
             @empty
             <x-ui.tr>
-                <x-ui.td colspan="12" class="p-0">
+                <x-ui.td colspan="10" class="p-0">
                     <x-ui.empty-state
                         title="Tidak Ada Data Barang"
                         description="Tidak ada data barang sesuai kriteria ranking & filter."
@@ -448,10 +439,6 @@
                     <td colspan="7" class="py-3 px-3 text-right uppercase tracking-wider text-[11px] text-slate-600 print:text-black print:text-[8pt]">Total Akumulasi:</td>
                     <td class="py-3 px-3 text-right font-mono font-bold text-slate-900 text-xs print:text-black print:text-[8.5pt]">
                         {{ number_format($stockSummary['total_units'] ?? 0, 0, ',', '.') }}
-                    </td>
-                    <td class="py-3 px-3 text-right text-slate-400 text-[11px]">-</td>
-                    <td class="py-3 px-3 text-right font-mono font-bold text-emerald-700 print:text-black text-xs whitespace-nowrap print:text-[8.5pt]">
-                        Rp {{ number_format($stockSummary['total_valuation'] ?? 0, 0, ',', '.') }}
                     </td>
                     <td colspan="2" class="py-3 px-3 text-center text-slate-400 print:text-slate-600 text-[11px] print:text-[8pt]">
                         {{ count($stockProducts) }} Barang
