@@ -156,7 +156,7 @@ class StockOutCreate extends Component
             return;
         }
 
-        $product = Product::where('barcode', $code)->orWhere('sku', $code)->first();
+        $product = Product::findByCode($code);
 
         if (! $product) {
             $this->dispatch('swal', [

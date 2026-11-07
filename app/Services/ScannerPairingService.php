@@ -155,7 +155,7 @@ class ScannerPairingService
         }
 
         $cleanBarcode = trim($barcode);
-        $product = Product::where('barcode', $cleanBarcode)->orWhere('sku', $cleanBarcode)->first();
+        $product = Product::findByCode($cleanBarcode);
         $productName = $product?->name ?? 'Barang Belum Terdaftar';
 
         $scanItem = [

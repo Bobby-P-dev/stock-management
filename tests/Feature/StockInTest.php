@@ -244,4 +244,20 @@ class StockInTest extends TestCase
         $this->assertEquals($newProduct->id, $component->get('items.0.product_id'));
         $this->assertEquals(1, $component->get('items.0.quantity'));
     }
+
+    public function test_stock_in_barcode_finds_product_with_leading_zero_tolerance(): void
+    {
+        $this->product1->update(['barcode' => '0899238810101']);
+
+        $component = Livewire::actingAs($this->admin)->test(StockInCreate::class);
+
+        // Scanned as 12-digit UPC-A (without leading zero)
+        $component->call('handleBarcodeScan', '899238810101');
+        $this->assertEquals($this->product1->id, $component->get('items.0.product_id'));
+        $this->assertEquals(1, $component->get('items.0.quantity'));
+
+        // Scanned again as 13-digit (with leading zero) -> increments
+        $component->call('handleBarcodeScan', '0899238810101');
+        $this->assertEquals(2, $component->get('items.0.quantity'));
+    }
 }

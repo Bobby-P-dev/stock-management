@@ -159,7 +159,7 @@ class StockInCreate extends Component
             return;
         }
 
-        $product = Product::where('barcode', $code)->orWhere('sku', $code)->first();
+        $product = Product::findByCode($code);
 
         if ($product) {
             if (! $product->is_active) {

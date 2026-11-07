@@ -39,6 +39,41 @@ class Product extends Model
     }
 
     /**
+     * Find a product by exact or normalized barcode / SKU.
+     * Supports tolerance for UPC-A (12-digit) and EAN-13 (13-digit with leading zero).
+     */
+    public static function findByCode(string $code): ?self
+    {
+        $clean = trim($code);
+        if ($clean === '') {
+            return null;
+        }
+
+        // 1. Direct match by exact barcode or SKU
+        $product = static::where('barcode', $clean)->orWhere('sku', $clean)->first();
+        if ($product) {
+            return $product;
+        }
+
+        // 2. Tolerance for UPC-A (12 digits) <-> EAN-13 (13 digits with leading zero)
+        if (strlen($clean) === 12 && ctype_digit($clean)) {
+            $ean = '0'.$clean;
+            $product = static::where('barcode', $ean)->orWhere('sku', $ean)->first();
+            if ($product) {
+                return $product;
+            }
+        } elseif (strlen($clean) === 13 && str_starts_with($clean, '0') && ctype_digit($clean)) {
+            $upc = substr($clean, 1);
+            $product = static::where('barcode', $upc)->orWhere('sku', $upc)->first();
+            if ($product) {
+                return $product;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return BelongsTo<Category, $this>
      */
     public function category(): BelongsTo
